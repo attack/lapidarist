@@ -18,8 +18,12 @@ module Lapidarist
     end
 
     def version(gem)
-      stdout, _, _ = Open3.capture3("bundle list | grep \" #{gem.name} \"", chdir: directory)
-      result = stdout.match /\((?<version>[0-9\.]+)\)/
+      stdout = ''
+      Open3.pipeline_r("bundle list", "grep \" #{gem.name} \"", chdir: directory) { |out, ts|
+        stdout = out.read
+      }
+
+      result = stdout.match(/\((?<version>[0-9\.]+)\)/)
       result[:version] if result
     end
 

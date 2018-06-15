@@ -5,17 +5,27 @@ require 'pathname'
 
 RSpec.describe 'Lapidarist CLI', type: :integration do
   describe '# lapidarist' do
-    it 'updates each outdated gem in a separate commit' do
+    it 'updates each outdated gem dependency in a separate commit' do
       within_temp_repo do |env, bundle, git|
         bundle.add_gem(:rake, '12.3.0', '<= 12.3.1')
-        bundle.add_gem(:rack, '2.0.3', '<= 2.0.4')
+        bundle.add_gem(
+          :sprockets, '3.7.0', '<= 3.7.1',
+          ['concurrent-ruby', '1.0.4', '~> 1.0'],
+          ['rack', '2.0.4', '> 1, < 3']
+        )
+        bundle.add_gem(
+          :i18n, '1.0.0', '<= 1.0.1',
+          ['concurrent-ruby', '1.0.4', '~> 1.0']
+        )
         bundle.install
 
         bundle.exec("lapidarist #{env.directory}")
 
         git_commits = git.commit_messages
+        expect(git_commits.length).to eq 3
         expect(git_commits).to include "Update rake from 12.3.0 to 12.3.1"
-        expect(git_commits).to include "Update rack from 2.0.3 to 2.0.4"
+        expect(git_commits).to include "Update sprockets from 3.7.0 to 3.7.1"
+        expect(git_commits).to include "Update i18n from 1.0.0 to 1.0.1"
       end
     end
   end
@@ -79,15 +89,25 @@ end
 class FakeBundle
   def initialize(env)
     @env = env
-    @gems = []
+    @gems = {}
+    @sub_dependencies = {}
   end
 
-  def add_gem(name, version, constraint)
-    gems << {
-      name: name,
+  def add_gem(name, version, constraint, *sub_dependencies)
+    gem = {
       version: version,
-      constraint: constraint
+      constraint: constraint,
+      sub_dependencies: {}
     }
+
+    sub_dependencies.each do |sub_dependency|
+      gem[:sub_dependencies][sub_dependency[0]] = {
+        version: sub_dependency[1],
+        constraint: sub_dependency[2]
+      }
+    end
+
+    gems[name] = gem
   end
 
   def install
@@ -110,8 +130,8 @@ class FakeBundle
       f.puts "source 'https://rubygems.org'"
       f.puts "gem 'lapidarist', path: '#{env.pwd}'"
 
-      gems.each do |gem|
-        f.puts "gem '#{gem[:name]}', '#{gem[:constraint]}'"
+      gems.each do |gem_name, gem_info|
+        f.puts "gem '#{gem_name}', '#{gem_info[:constraint]}'"
       end
     end
   end
@@ -122,13 +142,22 @@ class FakeBundle
       f.puts '  remote: https://rubygems.org/'
       f.puts '  specs:'
 
-      gems.each do |gem|
-        f.puts "    #{gem[:name]} (#{gem[:version]})"
+      sub_dependencies = {}
+      gems.each do |gem_name, gem_info|
+        f.puts "    #{gem_name} (#{gem_info[:version]})"
+        gem_info[:sub_dependencies].each do |sub_dependency_name, sub_dependency_info|
+          f.puts "      #{sub_dependency_name} (#{sub_dependency_info[:constraint]})"
+          sub_dependencies[sub_dependency_name] = sub_dependency_info
+        end
+      end
+
+      sub_dependencies.each do |gem_name, gem_info|
+        f.puts "    #{gem_name} (#{gem_info[:version]})"
       end
     end
   end
 
   def bundle
-    env.run('bundle')
+    env.run('bundle install')
   end
 end

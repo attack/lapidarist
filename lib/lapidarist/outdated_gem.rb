@@ -11,5 +11,11 @@ module Lapidarist
     def target_version=(version)
       @target_version = version
     end
+
+    def ==(other_gem)
+      name == other_gem.name &&
+        current_version == other_gem.current_version &&
+        newest_version == other_gem.newest_version
+    end
   end
 end

@@ -1,15 +1,17 @@
 module Lapidarist
   class Outdated
     def initialize(directory)
-      @directory = directory
+      @bundle = BundleCommand.new(directory)
+      @gemfile = Gemfile.new(directory)
     end
 
     def run
       results = []
-      bundle = BundleCommand.new(directory)
 
       bundle.outdated do |gem|
-        results.push gem
+        if gemfile.dependency?(gem)
+          results.push gem
+        end
       end
 
       results
@@ -17,6 +19,6 @@ module Lapidarist
 
     private
 
-    attr_reader :directory
+    attr_reader :bundle, :gemfile
   end
 end

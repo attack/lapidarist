@@ -1,7 +1,7 @@
 module Lapidarist
   class CLI
     def initialize(args)
-      @directory = args.pop
+      @directory = Pathname.new(args.pop)
     end
 
     def run
