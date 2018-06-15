@@ -5,27 +5,32 @@ require 'pathname'
 
 RSpec.describe 'Lapidarist CLI', type: :integration do
   describe '# lapidarist' do
-    it 'updates each outdated gem dependency in a separate commit' do
+    it 'updates each outdated gem dependency that passes the test in a separate commit' do
       within_temp_repo do |env, bundle, git|
-        bundle.add_gem(:rake, '12.3.0', '<= 12.3.1')
+        env.write_file('test.sh', 0755) do |f|
+          f.write "#!/usr/bin/env bash\n"
+          f.write "! git log --pretty=format:\"%s\" | grep -q 'Update rake'\n"
+        end
+        git.commit_files('add git bisect test file', 'test.sh')
+
+        bundle.add_gem(
+          :i18n, '1.0.0', '<= 1.0.1',
+          ['concurrent-ruby', '1.0.4', '~> 1.0']
+        )
         bundle.add_gem(
           :sprockets, '3.7.0', '<= 3.7.1',
           ['concurrent-ruby', '1.0.4', '~> 1.0'],
           ['rack', '2.0.4', '> 1, < 3']
         )
-        bundle.add_gem(
-          :i18n, '1.0.0', '<= 1.0.1',
-          ['concurrent-ruby', '1.0.4', '~> 1.0']
-        )
+        bundle.add_gem(:rake, '12.3.0', '<= 12.3.1')
         bundle.install
 
-        bundle.exec("lapidarist #{env.directory}")
+        expect {
+          bundle.exec("lapidarist #{env.directory} test.sh")
+        }.to change { git.commit_messages.length }.by(1)
 
         git_commits = git.commit_messages
-        expect(git_commits.length).to eq 3
-        expect(git_commits).to include "Update rake from 12.3.0 to 12.3.1"
-        expect(git_commits).to include "Update sprockets from 3.7.0 to 3.7.1"
-        expect(git_commits).to include "Update i18n from 1.0.0 to 1.0.1"
+        expect(git_commits).to include 'Update i18n from 1.0.0 to 1.0.1'
       end
     end
   end
@@ -55,8 +60,8 @@ class FakeEnv
     [stdout, stderr, exit_status]
   end
 
-  def write_file(filename)
-    open(directory.join(filename), 'w') do |f|
+  def write_file(filename, permissions = 0644)
+    open(directory.join(filename), 'w', permissions) do |f|
       yield f
     end
   end
@@ -74,6 +79,11 @@ class FakeGit
 
   def init
     env.run('git init')
+  end
+
+  def commit_files(message, *files)
+    env.run("git add #{files.join(' ')}")
+    env.run("git commit -m '#{message}'")
   end
 
   def commit_messages

@@ -6,6 +6,7 @@ require_relative 'lapidarist/gemfile'
 
 require_relative 'lapidarist/bundle_command'
 require_relative 'lapidarist/git_command'
+require_relative 'lapidarist/test_command'
 
 require_relative 'lapidarist/outdated'
 require_relative 'lapidarist/update'

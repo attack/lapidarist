@@ -24,7 +24,7 @@ module Lapidarist
       message = "Update #{outdated_gem.name} from #{outdated_gem.current_version} to #{outdated_gem.target_version}"
 
       git = GitCommand.new(directory)
-      git.add("Gemfile", "Gemfile.lock")
+      git.add('Gemfile', 'Gemfile.lock')
       git.commit(message)
     end
   end
