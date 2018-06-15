@@ -10,7 +10,7 @@ RSpec.describe Lapidarist::Outdated do
 
       gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
       gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
-      allow(bundle).to receive(:outdated).and_yield(gem_1).and_yield(gem_2)
+      allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
       allow(gemfile).to receive(:dependency?) { true }
 
       outdated_gems = Lapidarist::Outdated.new('/foo').run
@@ -27,7 +27,7 @@ RSpec.describe Lapidarist::Outdated do
 
       gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
       gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
-      allow(bundle).to receive(:outdated).and_yield(gem_1).and_yield(gem_2)
+      allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
       allow(gemfile).to receive(:dependency?).with(gem_1) { false }
       allow(gemfile).to receive(:dependency?).with(gem_2) { true }

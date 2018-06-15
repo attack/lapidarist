@@ -5,10 +5,12 @@ module Lapidarist
     end
 
     def outdated
-      Open3.popen2("bundle outdated --strict", chdir: directory) do |std_in, std_out|
-        while line = std_out.gets
-          gem = parse_gem_from(line)
-          yield(gem) if gem
+      Enumerator.new do |y|
+        Open3.popen2("bundle outdated --strict", chdir: directory) do |std_in, std_out|
+          while line = std_out.gets
+            gem = parse_gem_from(line)
+            y.yield(gem) if gem
+          end
         end
       end
     end

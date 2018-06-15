@@ -5,7 +5,7 @@ RSpec.describe Lapidarist::BundleCommand do
     it 'calls bundle outdated' do
       allow(Open3).to receive(:popen2)
 
-      Lapidarist::BundleCommand.new('/foo').outdated
+      Lapidarist::BundleCommand.new('/foo').outdated.to_a
 
       expect(Open3).to have_received(:popen2).with('bundle outdated --strict', chdir: '/foo')
     end
@@ -24,10 +24,7 @@ RSpec.describe Lapidarist::BundleCommand do
       )
       allow(Open3).to receive(:popen2).and_yield('', std_out)
 
-      outdated_gems = []
-      Lapidarist::BundleCommand.new('').outdated do |outdated_gem|
-        outdated_gems << outdated_gem
-      end
+      outdated_gems = Lapidarist::BundleCommand.new('').outdated.to_a
 
       expect(outdated_gems.length).to eq 2
       expect(outdated_gems[0]).to eq Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')

@@ -6,15 +6,11 @@ module Lapidarist
     end
 
     def run
-      results = []
-
-      bundle.outdated do |gem|
+      bundle.outdated.each_with_object([]) do |gem, results|
         if gemfile.dependency?(gem)
           results.push gem
         end
       end
-
-      results
     end
 
     private
