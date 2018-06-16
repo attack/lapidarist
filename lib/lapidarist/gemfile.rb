@@ -1,7 +1,7 @@
 module Lapidarist
   class Gemfile
-    def initialize(directory)
-      @directory = directory
+    def initialize(options)
+      @options = options
     end
 
     def dependency?(gem)
@@ -11,9 +11,9 @@ module Lapidarist
     private
 
     def gemfile_lines
-      @gemfile_lines ||= File.readlines(directory.join('Gemfile'))
+      @gemfile_lines ||= File.readlines(options.directory.join('Gemfile'))
     end
 
-    attr_reader :directory
+    attr_reader :options
   end
 end

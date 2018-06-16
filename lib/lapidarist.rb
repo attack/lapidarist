@@ -1,6 +1,7 @@
 require "lapidarist/version"
 require 'open3'
 
+require_relative 'lapidarist/options'
 require_relative 'lapidarist/outdated_gem'
 require_relative 'lapidarist/gemfile'
 

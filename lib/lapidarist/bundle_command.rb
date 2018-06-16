@@ -1,7 +1,7 @@
 module Lapidarist
   class BundleCommand
-    def initialize(directory)
-      @directory = directory
+    def initialize(options)
+      @directory = options.directory
     end
 
     def outdated

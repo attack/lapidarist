@@ -1,8 +1,8 @@
 module Lapidarist
   class Outdated
-    def initialize(directory)
-      @bundle = BundleCommand.new(directory)
-      @gemfile = Gemfile.new(directory)
+    def initialize(options)
+      @bundle = BundleCommand.new(options)
+      @gemfile = Gemfile.new(options)
     end
 
     def run

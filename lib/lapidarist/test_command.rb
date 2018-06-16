@@ -1,12 +1,11 @@
 module Lapidarist
   class TestCommand
-    def initialize(directory, command)
-      @directory = directory
-      @command = command
+    def initialize(options)
+      @options = options
     end
 
     def run
-      Open3.capture3(to_s, chdir: directory)[2]
+      Open3.capture3(to_s, chdir: options.directory)[2]
     end
 
     def success?
@@ -14,11 +13,11 @@ module Lapidarist
     end
 
     def to_s
-      "./#{command}"
+      "./#{options.test_script}"
     end
 
     private
 
-    attr_reader :directory, :command
+    attr_reader :options
   end
 end
