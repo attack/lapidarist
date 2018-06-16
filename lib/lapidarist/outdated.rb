@@ -1,13 +1,14 @@
 module Lapidarist
   class Outdated
     def initialize(options)
+      @options = options
       @bundle = BundleCommand.new(options)
       @gemfile = Gemfile.new(options)
     end
 
     def run
       bundle.outdated.each_with_object([]) do |gem, results|
-        if gemfile.dependency?(gem)
+        if options.all || gemfile.dependency?(gem)
           results.push gem
         end
       end
@@ -15,6 +16,6 @@ module Lapidarist
 
     private
 
-    attr_reader :bundle, :gemfile
+    attr_reader :bundle, :gemfile, :options
   end
 end
