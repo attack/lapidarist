@@ -6,7 +6,7 @@ require 'pathname'
 RSpec.describe 'Lapidarist CLI', type: :integration do
   describe '# lapidarist' do
     context 'when at least one gem update fails the test' do
-      it 'updates each outdated gem dependency that passes the test in separate commits' do
+      it 'updates each outdated listed gem dependency that passes the test in separate commits' do
         within_temp_repo do |env, bundle, git|
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
@@ -23,6 +23,10 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
             ['concurrent-ruby', '1.0.4', '~> 1.0'],
             ['rack', '2.0.4', '> 1, < 3']
           )
+          bundle.add_gem(
+            :addressable, '2.5.2', '<= 2.5.2',
+            ['public_suffix', '3.0.1', '>= 2.0.2, < 4.0']
+          )
           bundle.add_gem(:rake, '12.3.0', '<= 12.3.1')
           bundle.install
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
@@ -36,10 +40,45 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect(git_commits).to include 'Update i18n from 1.0.0 to 1.0.1'
         end
       end
+
+      it 'updates each outdated gem that passes the test in separate commits' do
+        within_temp_repo do |env, bundle, git|
+          env.write_file('test.sh', 0755) do |f|
+            f.write "#!/usr/bin/env bash\n"
+            f.write "exit 0\n"
+          end
+          git.commit_files('add git bisect test file', 'test.sh')
+
+          bundle.add_gem(
+            :i18n, '1.0.0', '<= 1.0.1',
+            ['concurrent-ruby', '1.0.4', '~> 1.0']
+          )
+          bundle.add_gem(
+            :faraday, '0.12.1', '<= 0.12.2',
+            ['multipart-post', '1.2.0', '>= 1.2, < 3']
+          )
+          bundle.add_gem(
+            :addressable, '2.5.2', '<= 2.5.2',
+            ['public_suffix', '3.0.1', '>= 2.0.2, < 4.0']
+          )
+          bundle.install
+          git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
+
+          expect {
+            bundle.exec("lapidarist -d #{env.directory} -t test.sh --all")
+          }.to change { git.commit_messages.length }.by(4)
+
+          git_commits = git.commit_messages
+          expect(git_commits).to include 'Update public_suffix from 3.0.1 to 3.0.2'
+          expect(git_commits).to include 'Update concurrent-ruby from 1.0.4 to 1.0.5'
+          expect(git_commits).to include 'Update faraday from 0.12.1 to 0.12.2'
+          expect(git_commits).to include 'Update i18n from 1.0.0 to 1.0.1'
+        end
+      end
     end
 
     context 'when all gem updates pass the test' do
-      it 'updates all outdated gem dependencies in separate commits' do
+      it 'updates all outdated listed gem dependencies in separate commits' do
         within_temp_repo do |env, bundle, git|
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
