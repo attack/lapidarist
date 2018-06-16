@@ -9,6 +9,10 @@ module Lapidarist
       Open3.capture3(to_s, chdir: directory)[2]
     end
 
+    def success?
+      run == 0
+    end
+
     def to_s
       "./#{command}"
     end
