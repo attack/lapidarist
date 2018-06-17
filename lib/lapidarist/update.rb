@@ -1,11 +1,11 @@
 module Lapidarist
   class Update
-    def initialize(outdated_gems, options)
-      @outdated_gems = outdated_gems
-      @options = options
+    def initialize(options)
+      @bundle = BundleCommand.new(options)
+      @git = GitCommand.new(options)
     end
 
-    def run
+    def run(outdated_gems)
       outdated_gems.each_with_index do |outdated_gem, index|
         update_gem(outdated_gem, index)
       end
@@ -13,19 +13,15 @@ module Lapidarist
 
     private
 
-    attr_reader :outdated_gems, :options
+    attr_reader :outdated_gems, :bundle, :git
 
     def update_gem(outdated_gem, index)
-      bundle = BundleCommand.new(options)
       bundle.update(outdated_gem)
 
       outdated_gem.target_version = bundle.version(outdated_gem)
 
-      message = "Update #{outdated_gem.name} from #{outdated_gem.current_version} to #{outdated_gem.target_version}"
-
-      git = GitCommand.new(options)
       git.add('Gemfile', 'Gemfile.lock')
-      git.commit(message)
+      git.commit("Update #{outdated_gem.what_changed}")
     end
   end
 end

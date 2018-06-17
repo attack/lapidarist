@@ -9,13 +9,15 @@ module Lapidarist
     def run
       failing_gem_names = []
       start_sha = git.head
+      update = Update.new(options)
+      outdated = Outdated.new(options)
 
       loop do
-        outdated_gems = Outdated.new(options).run
-        remaing_outdated_gems = outdated_gems.select { |g| !failing_gem_names.include?(g.name) }
-        break if remaing_outdated_gems.empty?
+        outdated_gems = outdated.run
+        remaining_outdated_gems = outdated_gems.select { |g| !failing_gem_names.include?(g.name) }
+        break if remaining_outdated_gems.empty?
 
-        Update.new(remaing_outdated_gems, options).run
+        update.run(remaining_outdated_gems)
 
         break if test.success?
 
