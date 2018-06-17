@@ -2,18 +2,19 @@ module Lapidarist
   class GitCommand
     def initialize(options)
       @directory = options.directory
+      @shell = Shell.new(options)
     end
 
     def head
-      Open3.capture3('git rev-parse HEAD', chdir: directory)[0]
+      shell.run('git rev-parse HEAD')[0]
     end
 
     def add(*files)
-      Open3.capture3("git add #{files.join(' ')}", chdir: directory)
+      shell.run("git add #{files.join(' ')}")
     end
 
     def commit(message)
-      Open3.capture3("git commit -m '#{message}'", chdir: directory)
+      shell.run("git commit -m '#{message}'")
     end
 
     def bisect(start_sha, test)
@@ -23,20 +24,20 @@ module Lapidarist
 
     private
 
-    attr_reader :directory
+    attr_reader :shell, :directory
 
     def bisect_start(sha)
-      Open3.capture3("git bisect start", chdir: directory)
-      Open3.capture3("git bisect bad", chdir: directory)
-      Open3.capture3("git bisect good #{sha}", chdir: directory)
+      shell.run('git bisect start')
+      shell.run('git bisect bad')
+      shell.run("git bisect good #{sha}")
     end
 
     def bisect_run(test)
       failing_gem_name = nil
 
-      Open3.popen2e("git bisect run #{test}", chdir: directory) do |_std_in, std_out_err|
+      shell.run("git bisect run #{test}") do |std_out_err|
         while line = std_out_err.gets
-          bisect_step = BisectStep.new(line, directory)
+          bisect_step = BisectStep.new(line, shell)
 
           if bisect_step.failure?
             failing_sha = bisect_step.failing_sha
@@ -54,18 +55,18 @@ module Lapidarist
     end
 
     def bisect_reset
-      Open3.capture3('git bisect reset', chdir: directory)
+      shell.run('git bisect reset')
     end
 
     def rewind_to_last_good_commit(sha)
-      Open3.capture3("git reset --hard #{sha}^", chdir: directory)
+      shell.run("git reset --hard #{sha}^")
     end
   end
 
   class BisectStep
-    def initialize(line, directory)
+    def initialize(line, shell)
       @line = line
-      @directory = directory
+      @shell = shell
     end
 
     def success?
@@ -84,9 +85,9 @@ module Lapidarist
     end
 
     def failing_gem(sha)
-      commit_message = Open3.capture3("git log --format=%s -n 1 #{sha}", chdir: directory)[0]
+      commit_message = shell.run("git log --format=%s -n 1 #{sha}")[0]
 
-      sha_regex = Regexp::new("Update (.*) from").match(commit_message)
+      sha_regex = Regexp::new('Update (.*) from').match(commit_message)
       unless sha_regex.nil?
         sha_regex[1]
       end
@@ -94,6 +95,6 @@ module Lapidarist
 
     private
 
-    attr_reader :directory, :line
+    attr_reader :shell, :line
   end
 end

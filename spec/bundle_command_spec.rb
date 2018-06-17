@@ -3,11 +3,11 @@ require 'spec_helper'
 RSpec.describe Lapidarist::BundleCommand do
   describe '#outdated' do
     it 'calls bundle outdated' do
-      allow(Open3).to receive(:popen2)
+      allow(Open3).to receive(:popen2e)
 
       Lapidarist::BundleCommand.new('/foo').outdated.to_a
 
-      expect(Open3).to have_received(:popen2).with('bundle outdated --strict', chdir: '/foo')
+      expect(Open3).to have_received(:popen2e).with('bundle outdated --strict', chdir: '/foo')
     end
 
     it 'parses each line from the output and returns outdated gem objects' do
@@ -22,7 +22,7 @@ RSpec.describe Lapidarist::BundleCommand do
         '  * rake (newest 12.3.1, installed 10.5.0, requested ~> 10.0) in groups "development"',
         nil
       )
-      allow(Open3).to receive(:popen2).and_yield('', std_out)
+      allow(Open3).to receive(:popen2e).and_yield('', std_out)
 
       outdated_gems = Lapidarist::BundleCommand.new('').outdated.to_a
 

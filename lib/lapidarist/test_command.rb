@@ -2,10 +2,11 @@ module Lapidarist
   class TestCommand
     def initialize(options)
       @options = options
+      @shell = Shell.new(options)
     end
 
     def run
-      Open3.capture3(to_s, chdir: options.directory)[2]
+      shell.run(to_s)[2]
     end
 
     def success?
@@ -18,6 +19,6 @@ module Lapidarist
 
     private
 
-    attr_reader :options
+    attr_reader :options, :shell
   end
 end
