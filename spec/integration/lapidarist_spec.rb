@@ -111,6 +111,37 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
       end
     end
 
+    context 'when one gem locks the version of another outdated gem' do
+      it 'can still update the dependencies of the locked outdated gem' do
+        within_temp_repo do |env, bundle, git|
+          env.write_file('test.sh', 0755) do |f|
+            f.write "#!/usr/bin/env bash\n"
+            f.write "exit 0\n"
+          end
+          git.commit_files('add git bisect test file', 'test.sh')
+
+          bundle.add_gem(
+            :addressable, '2.5.0', '<= 2.5.2',
+            ['public_suffix', '2.0.4', '>= 2.0.2, ~> 2.0']
+          )
+          bundle.add_gem(
+            :launchy, '2.4.2', '<= 2.4.3',
+            ['addressable', nil, '2.5.0']
+          )
+          bundle.install
+          git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
+
+          expect {
+            bundle.exec("lapidarist -d #{env.directory} -t test.sh")
+          }.to change { git.commit_messages.length }.by(2)
+
+          git_commits = git.commit_messages
+          expect(git_commits).to include 'Update addressable dependencies'
+          expect(git_commits).to include 'Update launchy from 2.4.2 to 2.4.3'
+        end
+      end
+    end
+
     context 'when all gem updates fail the test' do
       it 'does not add any commits' do
         within_temp_repo do |env, bundle, git|
@@ -273,13 +304,19 @@ class FakeBundle
       gems.each do |gem_name, gem_info|
         f.puts "    #{gem_name} (#{gem_info[:version]})"
         gem_info[:sub_dependencies].each do |sub_dependency_name, sub_dependency_info|
-          f.puts "      #{sub_dependency_name} (#{sub_dependency_info[:constraint]})"
+          if sub_dependency_info[:constraint]
+            f.puts "      #{sub_dependency_name} (#{sub_dependency_info[:constraint]})"
+          else
+            f.puts "      #{sub_dependency_name}"
+          end
           sub_dependencies[sub_dependency_name] = sub_dependency_info
         end
       end
 
       sub_dependencies.each do |gem_name, gem_info|
-        f.puts "    #{gem_name} (#{gem_info[:version]})"
+        unless gems.keys.include?(gem_name.to_sym)
+          f.puts "    #{gem_name} (#{gem_info[:version]})"
+        end
       end
     end
   end
