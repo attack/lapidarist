@@ -2,12 +2,13 @@ module Lapidarist
   class BundleCommand
     def initialize(options)
       @directory = options.directory
+      @shell = Shell.new(options)
     end
 
     def outdated
       Enumerator.new do |y|
-        Open3.popen2("bundle outdated --strict", chdir: directory) do |std_in, std_out|
-          while line = std_out.gets
+        shell.run('bundle outdated --strict') do |std_out_err|
+          while line = std_out_err.gets
             gem = parse_gem_from(line)
             y.yield(gem) if gem
           end
@@ -16,22 +17,18 @@ module Lapidarist
     end
 
     def update(gem)
-      Open3.capture3("bundle update #{gem.name}", chdir: directory)
+      shell.run("bundle update #{gem.name}")
     end
 
     def version(gem)
-      stdout = ''
-      Open3.pipeline_r("bundle list", "grep \" #{gem.name} \"", chdir: directory) { |out, ts|
-        stdout = out.read
-      }
-
+      stdout = shell.run('bundle list', "grep \" #{gem.name} \"")
       result = stdout.match(/\((?<version>[0-9\.]+)\)/)
       result[:version] if result
     end
 
     private
 
-    attr_reader :directory
+    attr_reader :shell, :directory
 
     def parse_gem_from(line)
       regex = / \* (.*) \(newest (\d[\d\.]*\d)[,\s] installed (\d[\d\.]*\d)[\),\s]/.match line
