@@ -32,7 +32,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.to change { git.commit_messages.length }.by(2)
 
           git_commits = git.commit_messages
@@ -65,7 +65,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh --all")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh --all -q")
           }.to change { git.commit_messages.length }.by(4)
 
           git_commits = git.commit_messages
@@ -100,7 +100,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.to change { git.commit_messages.length }.by(3)
 
           git_commits = git.commit_messages
@@ -132,7 +132,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.to change { git.commit_messages.length }.by(2)
 
           git_commits = git.commit_messages
@@ -156,7 +156,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.not_to change { git.commit_messages.length }
         end
       end
@@ -176,7 +176,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.not_to change { git.commit_messages.length }
         end
       end

@@ -59,7 +59,7 @@ module Lapidarist
     end
 
     def write_std_out(message, level)
-      if level <= options.verbosity
+      if level <= options.verbosity && !options.quiet
         puts message
       end
     end

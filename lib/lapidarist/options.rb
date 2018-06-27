@@ -12,6 +12,7 @@ module Lapidarist
       options.directory = Pathname.new('.')
       options.test_script = 'test.sh'
       options.all = false
+      options.quiet = false
       options.verbosity = 0
       options.commit_flags = ''
       options.debug = false
@@ -28,6 +29,10 @@ module Lapidarist
 
         opts.on("-a", "--all", "Update gems that are sub-dependencies.") do |t|
           options.all = true
+        end
+
+        opts.on("-q", "--quiet", "Do not print anything to stdout.") do |t|
+          options.quiet = true
         end
 
         opts.on("-v", "Increase verbosity, repeat for more verbosity.") do |t|
