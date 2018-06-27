@@ -5,6 +5,7 @@ require_relative 'lapidarist/options'
 require_relative 'lapidarist/outdated_gem'
 require_relative 'lapidarist/gemfile'
 
+require_relative 'lapidarist/logger'
 require_relative 'lapidarist/shell'
 require_relative 'lapidarist/bundle_command'
 require_relative 'lapidarist/git_command'

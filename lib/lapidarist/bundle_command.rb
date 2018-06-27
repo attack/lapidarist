@@ -3,12 +3,16 @@ module Lapidarist
     def initialize(options)
       @options = options
       @shell = Shell.new(options)
+      @logger = Logger.new(options)
     end
 
     def outdated
+      shell.run('cat Gemfile') if options.debug
+
       Enumerator.new do |y|
         shell.run('bundle outdated --strict') do |std_out_err|
           while line = std_out_err.gets
+            logger.std_out_err(line, 'bundle outdated')
             gem = parse_gem_from(line)
             y.yield(gem) if gem
           end

@@ -6,7 +6,7 @@ module Lapidarist
     end
 
     def run
-      shell.run(to_s)[2]
+      shell.run(to_s)[1]
     end
 
     def success?

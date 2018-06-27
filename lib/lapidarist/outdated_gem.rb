@@ -26,6 +26,20 @@ module Lapidarist
         newest_version == other_gem.newest_version
     end
 
+    def log_s
+      parts = [
+        "outdated gem: #{name}",
+        "current: #{current_version}",
+        "newest: #{newest_version}"
+      ]
+
+      if target_version
+        parts << "newest: #{target_version}"
+      end
+
+      parts.join(', ')
+    end
+
     private
 
     def updated?

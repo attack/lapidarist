@@ -12,7 +12,10 @@ module Lapidarist
       options.directory = Pathname.new('.')
       options.test_script = 'test.sh'
       options.all = false
+      options.verbosity = 0
       options.commit_flags = ''
+      options.debug = false
+      options.log_path = Pathname.new('./tmp/lapidarist.log')
 
       opt_parser = OptionParser.new do |opts|
         opts.on("-d", "--directory DIRECTORY", "Directory to run Lapidarist from.") do |d|
@@ -27,8 +30,20 @@ module Lapidarist
           options.all = true
         end
 
+        opts.on("-v", "Increase verbosity, repeat for more verbosity.") do |t|
+          options.verbosity += 1
+        end
+
         opts.on("-f", "--commit-flags flags", "Append flags to the commit command.") do |t|
           options.commit_flags = t
+        end
+
+        opts.on("--debug", "Display debug output.") do |t|
+          options.debug = true
+        end
+
+        opts.on("-l LOG_PATH", "Path to log file") do |t|
+          options.log_path = t
         end
       end
 

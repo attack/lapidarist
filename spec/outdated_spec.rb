@@ -7,7 +7,7 @@ RSpec.describe Lapidarist::Outdated do
       allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
       gemfile = double(Lapidarist::Gemfile)
       allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-      options = double(Lapidarist::Options, directory: '/foo', all: false)
+      options = double(Lapidarist::Options, directory: '/foo', all: false, verbosity: 0, log_path: nil)
 
       gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
       gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
@@ -25,7 +25,7 @@ RSpec.describe Lapidarist::Outdated do
       allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
       gemfile = double(Lapidarist::Gemfile)
       allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-      options = double(Lapidarist::Options, directory: '/foo', all: false)
+      options = double(Lapidarist::Options, directory: '/foo', all: false, verbosity: 0, log_path: nil)
 
       gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
       gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
@@ -46,7 +46,7 @@ RSpec.describe Lapidarist::Outdated do
         allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
         gemfile = double(Lapidarist::Gemfile)
         allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-        options = double(Lapidarist::Options, directory: '/foo', all: true)
+        options = double(Lapidarist::Options, directory: '/foo', all: true, verbosity: 0, log_path: nil)
 
         gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
         gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
