@@ -14,7 +14,7 @@ module Lapidarist
     end
 
     def to_s
-      "./#{options.test_script}"
+      options.test_script
     end
 
     private

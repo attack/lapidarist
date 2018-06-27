@@ -7,7 +7,7 @@ module Lapidarist
     end
 
     def head
-      shell.run('git rev-parse HEAD')[0]
+      shell.run('git rev-parse HEAD')[0].strip
     end
 
     def add(*files)
@@ -15,12 +15,17 @@ module Lapidarist
     end
 
     def commit(message)
-      shell.run("git commit -m '#{message}' #{options.commit_flags}")
+      shell.run("git commit -m '#{message}' #{options.commit_flags}", label: 'git commit')
     end
 
     def bisect(start_sha, test)
+      logger.header('Starting bisect')
       bisect_start(start_sha)
-      bisect_run(test)
+      bisect_run(start_sha, test)
+    end
+
+    def log(sha)
+      shell.run("git log HEAD...#{sha}^ --no-color --oneline", label: 'git log')
     end
 
     private
@@ -30,10 +35,10 @@ module Lapidarist
     def bisect_start(sha)
       shell.run('git bisect start')
       shell.run('git bisect bad')
-      shell.run("git bisect good #{sha}")
+      shell.run("git bisect good #{sha}", label: 'git bisect good')
     end
 
-    def bisect_run(test)
+    def bisect_run(start_sha, test)
       failing_gem_name = nil
 
       shell.run("git bisect run #{test}") do |std_out_err|
@@ -43,6 +48,7 @@ module Lapidarist
           if bisect_step.failure?
             failing_sha = bisect_step.failing_sha
             failing_gem_name = bisect_step.failing_gem(failing_sha)
+            logger.info("... found failing gem update: #{failing_gem_name}")
           end
 
           if bisect_step.success?
@@ -50,6 +56,10 @@ module Lapidarist
             rewind_to_last_good_commit(failing_sha)
           end
         end
+      end
+
+      if failing_gem_name && options.debug
+        log(start_sha)
       end
 
       failing_gem_name
@@ -86,7 +96,7 @@ module Lapidarist
     end
 
     def failing_gem(sha)
-      commit_message = shell.run("git log --format=%s -n 1 #{sha}")[0]
+      commit_message = shell.run("git log --format=%s -n 1 #{sha}", label: 'git log')[0]
 
       sha_regex = Regexp::new('Update (.*) from').match(commit_message)
       unless sha_regex.nil?
