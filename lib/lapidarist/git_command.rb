@@ -1,8 +1,9 @@
 module Lapidarist
   class GitCommand
     def initialize(options)
-      @directory = options.directory
+      @options = options
       @shell = Shell.new(options)
+      @logger = Logger.new(options)
     end
 
     def head
@@ -14,7 +15,7 @@ module Lapidarist
     end
 
     def commit(message)
-      shell.run("git commit -m '#{message}'")
+      shell.run("git commit -m '#{message}' #{options.commit_flags}")
     end
 
     def bisect(start_sha, test)
@@ -24,7 +25,7 @@ module Lapidarist
 
     private
 
-    attr_reader :shell, :directory
+    attr_reader :shell, :options, :logger
 
     def bisect_start(sha)
       shell.run('git bisect start')

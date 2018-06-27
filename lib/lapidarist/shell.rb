@@ -2,6 +2,7 @@ module Lapidarist
   class Shell
     def initialize(options)
       @options = options
+      @logger = Logger.new(options)
     end
 
     def run(*commands, &block)
@@ -14,7 +15,7 @@ module Lapidarist
 
     private
 
-    attr_reader :options
+    attr_reader :options, :logger
 
     def run_single_command(command)
       if block_given?
@@ -22,7 +23,16 @@ module Lapidarist
           yield(std_out_err)
         end
       else
-        Open3.capture3(command, chdir: options.directory)
+        out, err, status = Open3.capture3(command, chdir: options.directory)
+        logger.info "command: `#{command}`"
+        out.split("\n").each do |out_line|
+          logger.info("OUT > #{out_line}")
+        end
+        err.split("\n").each do |err_line|
+          logger.info("ERR > #{err_line}")
+        end
+        logger.info("STATUS > #{status}")
+        [out, err, status]
       end
     end
 
