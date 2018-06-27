@@ -4,8 +4,9 @@ RSpec.describe Lapidarist::GitCommand do
   describe '#add' do
     it 'calls git add with the provided files' do
       allow(Open3).to receive(:capture3)
+      options = double(Lapidarist::Options, directory: '/foo')
 
-      Lapidarist::GitCommand.new('/foo').add('Gemfile', 'Gemfile.lock')
+      Lapidarist::GitCommand.new(options).add('Gemfile', 'Gemfile.lock')
 
       expect(Open3).to have_received(:capture3).with('git add Gemfile Gemfile.lock', chdir: '/foo')
     end

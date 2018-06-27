@@ -1,7 +1,7 @@
 module Lapidarist
   class BundleCommand
     def initialize(options)
-      @directory = options.directory
+      @options = options
       @shell = Shell.new(options)
     end
 
@@ -28,7 +28,7 @@ module Lapidarist
 
     private
 
-    attr_reader :shell, :directory
+    attr_reader :shell, :options, :logger
 
     def parse_gem_from(line)
       regex = / \* (.*) \(newest (\d[\d\.]*\d)[,\s] installed (\d[\d\.]*\d)[\),\s]/.match line

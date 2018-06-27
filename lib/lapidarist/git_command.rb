@@ -1,7 +1,7 @@
 module Lapidarist
   class GitCommand
     def initialize(options)
-      @directory = options.directory
+      @options = options
       @shell = Shell.new(options)
     end
 
@@ -24,7 +24,7 @@ module Lapidarist
 
     private
 
-    attr_reader :shell, :directory
+    attr_reader :shell, :options, :logger
 
     def bisect_start(sha)
       shell.run('git bisect start')

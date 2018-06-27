@@ -4,8 +4,9 @@ RSpec.describe Lapidarist::BundleCommand do
   describe '#outdated' do
     it 'calls bundle outdated' do
       allow(Open3).to receive(:popen2e)
+      options = double(Lapidarist::Options, directory: '/foo')
 
-      Lapidarist::BundleCommand.new('/foo').outdated.to_a
+      Lapidarist::BundleCommand.new(options).outdated.to_a
 
       expect(Open3).to have_received(:popen2e).with('bundle outdated --strict', chdir: '/foo')
     end
@@ -23,8 +24,9 @@ RSpec.describe Lapidarist::BundleCommand do
         nil
       )
       allow(Open3).to receive(:popen2e).and_yield('', std_out)
+      options = double(Lapidarist::Options, directory: '')
 
-      outdated_gems = Lapidarist::BundleCommand.new('').outdated.to_a
+      outdated_gems = Lapidarist::BundleCommand.new(options).outdated.to_a
 
       expect(outdated_gems.length).to eq 2
       expect(outdated_gems[0]).to eq Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
@@ -35,9 +37,10 @@ RSpec.describe Lapidarist::BundleCommand do
   describe '#update' do
     it 'calls bundle update' do
       allow(Open3).to receive(:capture3)
+      options = double(Lapidarist::Options, directory: '/foo')
 
       gem = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: nil, current_version: nil)
-      Lapidarist::BundleCommand.new('/foo').update(gem)
+      Lapidarist::BundleCommand.new(options).update(gem)
 
       expect(Open3).to have_received(:capture3).with('bundle update rack', chdir: '/foo')
     end
@@ -46,9 +49,10 @@ RSpec.describe Lapidarist::BundleCommand do
   describe '#version' do
     it 'calls bundle list + grep' do
       allow(Open3).to receive(:pipeline_r)
+      options = double(Lapidarist::Options, directory: '/foo')
 
       gem = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: nil, current_version: nil)
-      Lapidarist::BundleCommand.new('/foo').version(gem)
+      Lapidarist::BundleCommand.new(options).version(gem)
 
       expect(Open3).to have_received(:pipeline_r).with('bundle list', "grep \" rack \"", chdir: '/foo')
     end
@@ -58,8 +62,9 @@ RSpec.describe Lapidarist::BundleCommand do
         std_out = double(:STD_OUT)
         allow(std_out).to receive(:read).and_return('  * bundler (1.16.1)')
         allow(Open3).to receive(:pipeline_r).and_yield(std_out, [])
+        options = double(Lapidarist::Options, directory: '')
 
-        bundle = Lapidarist::BundleCommand.new('')
+        bundle = Lapidarist::BundleCommand.new(options)
         gem = Lapidarist::OutdatedGem.new(name: 'bundler', current_version: nil, newest_version: nil)
 
         expect(bundle.version(gem)).to eq '1.16.1'
@@ -71,8 +76,9 @@ RSpec.describe Lapidarist::BundleCommand do
         std_out = double(:STD_OUT)
         allow(std_out).to receive(:read).and_return('')
         allow(Open3).to receive(:pipeline_r).and_yield(std_out, [])
+        options = double(Lapidarist::Options, directory: '.')
 
-        bundle = Lapidarist::BundleCommand.new('.')
+        bundle = Lapidarist::BundleCommand.new(options)
         gem = Lapidarist::OutdatedGem.new(name: 'rake', current_version: nil, newest_version: nil)
 
         expect(bundle.version(gem)).to be_nil
