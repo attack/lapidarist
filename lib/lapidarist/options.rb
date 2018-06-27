@@ -12,6 +12,7 @@ module Lapidarist
       options.directory = Pathname.new('.')
       options.test_script = 'test.sh'
       options.all = false
+      options.commit_flags = ''
 
       opt_parser = OptionParser.new do |opts|
         opts.on("-d", "--directory DIRECTORY", "Directory to run Lapidarist from.") do |d|
@@ -24,6 +25,10 @@ module Lapidarist
 
         opts.on("-a", "--all", "Update gems that are sub-dependencies.") do |t|
           options.all = true
+        end
+
+        opts.on("-f", "--commit-flags flags", "Append flags to the commit command.") do |t|
+          options.commit_flags = t
         end
       end
 

@@ -14,7 +14,7 @@ module Lapidarist
     end
 
     def commit(message)
-      shell.run("git commit -m '#{message}'")
+      shell.run("git commit -m '#{message}' #{options.commit_flags}".strip)
     end
 
     def bisect(start_sha, test)
