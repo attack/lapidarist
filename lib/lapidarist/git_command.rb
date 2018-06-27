@@ -6,7 +6,7 @@ module Lapidarist
     end
 
     def head
-      shell.run('git rev-parse HEAD')[0]
+      shell.run('git rev-parse HEAD')[0].strip
     end
 
     def add(*files)
