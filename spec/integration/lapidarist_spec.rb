@@ -181,6 +181,33 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
         end
       end
     end
+
+    context 'when the number of gems to update is specified' do
+      it 'updates only the specified number of gems' do
+        within_temp_repo do |env, bundle, git|
+          env.write_file('test.sh', 0755) do |f|
+            f.write "#!/usr/bin/env bash\n"
+            f.write "true\n"
+          end
+          git.commit_files('add git bisect test file', 'test.sh')
+
+          bundle.add_gem(
+            :i18n, '1.0.0', '<= 1.0.1',
+            ['concurrent-ruby', '1.0.4', '~> 1.0']
+          )
+          bundle.add_gem(:rake, '12.3.0', '<= 12.3.1')
+          bundle.install
+          git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
+
+          expect {
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q -n 1")
+          }.to change { git.commit_messages.length }.by(1)
+
+          git_commits = git.commit_messages
+          expect(git_commits).to include 'Update i18n from 1.0.0 to 1.0.1'
+        end
+      end
+    end
   end
 
   def within_temp_repo
@@ -276,6 +303,9 @@ class FakeBundle
 
   def exec(command)
     stdout, stderr, exit_status = env.run("bundle exec #{command}")
+    unless stderr.empty?
+      puts stderr
+    end
     [stdout, stderr, exit_status]
   end
 

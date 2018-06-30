@@ -17,6 +17,7 @@ module Lapidarist
       options.commit_flags = ''
       options.debug = false
       options.log_path = Pathname.new('./tmp/lapidarist.log')
+      options.update_limit = nil
 
       opt_parser = OptionParser.new do |opts|
         opts.on("-d", "--directory DIRECTORY", "Directory to run Lapidarist from.") do |d|
@@ -49,6 +50,10 @@ module Lapidarist
 
         opts.on("-l LOG_PATH", "Path to log file") do |t|
           options.log_path = t
+        end
+
+        opts.on("-n NUMBER_OF_GEMS", "Limit the number of gems to be updated.") do |t|
+          options.update_limit = t.to_i
         end
       end
 

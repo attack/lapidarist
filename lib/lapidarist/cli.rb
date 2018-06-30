@@ -28,15 +28,14 @@ module Lapidarist
       for i in 1..Float::INFINITY
         logger.header("Attempt ##{i}")
 
-        outdated_gems = outdated.run
-        remaining_outdated_gems = outdated_gems.select { |g| !failing_gem_names.include?(g.name) }
+        outdated_gems = outdated.run(failing_gem_names)
 
-        if remaining_outdated_gems.empty?
-          logger.footer('stopping, there are no remaining outdated gems')
+        if outdated_gems.empty?
+          logger.footer('stopping, there are no applicable outdated gems')
           break
         end
 
-        update.run(remaining_outdated_gems)
+        update.run(outdated_gems)
 
         logger.header("Testing gem updates")
         if test.success?
