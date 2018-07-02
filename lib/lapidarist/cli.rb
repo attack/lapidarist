@@ -45,7 +45,13 @@ module Lapidarist
           logger.footer('test failed, investigating failure')
         end
 
-        failing_gem_names << git.bisect(last_good_sha, test)
+        if outdated_gems.one?
+          failing_gem_names << outdated_gems.first.name
+          git.reset_hard('HEAD^')
+        else
+          failing_gem_names << git.bisect(last_good_sha, test)
+        end
+
         last_good_sha = git.head
         logger.debug("retry from sha: #{last_good_sha}")
       end

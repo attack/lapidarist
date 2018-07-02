@@ -28,6 +28,10 @@ module Lapidarist
       shell.run("git log HEAD...#{sha}^ --no-color --oneline", label: 'git log')
     end
 
+    def reset_hard(ref)
+      shell.run("git reset --hard #{ref}")
+    end
+
     private
 
     attr_reader :shell, :options, :logger
@@ -76,7 +80,7 @@ module Lapidarist
     end
 
     def rewind_to_last_good_commit(sha)
-      shell.run("git reset --hard #{sha}^")
+      reset_hard("#{sha}^")
     end
   end
 
