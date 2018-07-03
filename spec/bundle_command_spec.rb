@@ -8,19 +8,14 @@ RSpec.describe Lapidarist::BundleCommand do
 
       Lapidarist::BundleCommand.new(options).outdated.to_a
 
-      expect(Open3).to have_received(:popen2e).with('bundle outdated --strict', chdir: '/foo')
+      expect(Open3).to have_received(:popen2e).with('bundle outdated --strict --parseable', chdir: '/foo')
     end
 
     it 'parses each line from the output and returns outdated gem objects' do
       std_out = double(:STD_OUT)
       allow(std_out).to receive(:gets).and_return(
-        'Fetching gem metadata from https://rubygems.org/........',
-        'Fetching gem metadata from https://rubygems.org/.',
-        'Resolving dependencies...',
-        '',
-        'Outdated gems included in the bundle:',
-        '  * rack (newest 2.0.5, installed 2.0.3, requested = 2.0.3) in groups "default"',
-        '  * rake (newest 12.3.1, installed 10.5.0, requested ~> 10.0) in groups "development"',
+        'rack (newest 2.0.5, installed 2.0.3, requested = 2.0.3)',
+        'rake (newest 12.3.1, installed 10.5.0, requested ~> 10.0)',
         nil
       )
       allow(Open3).to receive(:popen2e).and_yield('', std_out)
