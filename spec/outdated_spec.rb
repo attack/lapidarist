@@ -3,29 +3,23 @@ require 'spec_helper'
 RSpec.describe Lapidarist::Outdated do
   describe '#run' do
     it 'returns a result for each outdated gem' do
-      bundle = double(Lapidarist::BundleCommand)
-      allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
-      gemfile = double(Lapidarist::Gemfile)
-      allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-      options = double(Lapidarist::Options, directory: '/foo', all: false, verbosity: 0, log_path: nil, quiet: true, update_limit: nil)
+      bundle = stub_bundle_command
+      stub_gemfile
 
       gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
       gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
       allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
-      allow(gemfile).to receive(:dependency?) { true }
 
-      outdated_gems = Lapidarist::Outdated.new(options).run
+      outdated_gems = Lapidarist::Outdated.new(build_options).run
 
       expect(outdated_gems.length).to eq 2
       expect(outdated_gems).to eq [gem_1, gem_2]
     end
 
     it 'does not return outdated gems that are not listed in the Gemfile' do
-      bundle = double(Lapidarist::BundleCommand)
-      allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
-      gemfile = double(Lapidarist::Gemfile)
-      allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-      options = double(Lapidarist::Options, directory: '/foo', all: false, verbosity: 0, log_path: nil, quiet: true, update_limit: nil)
+      bundle = stub_bundle_command
+      gemfile = stub_gemfile
+      options = build_options(all: false)
 
       gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
       gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
@@ -42,11 +36,9 @@ RSpec.describe Lapidarist::Outdated do
 
     context 'when all gems should be updated' do
       it 'does not return outdated gems that are not listed in the Gemfile' do
-        bundle = double(Lapidarist::BundleCommand)
-        allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
-        gemfile = double(Lapidarist::Gemfile)
-        allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-        options = double(Lapidarist::Options, directory: '/foo', all: true, verbosity: 0, log_path: nil, quiet: true, update_limit: nil)
+        bundle = stub_bundle_command
+        gemfile = stub_gemfile
+        options = build_options(all: true)
 
         gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
         gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
@@ -64,17 +56,13 @@ RSpec.describe Lapidarist::Outdated do
 
     context 'when failed gems are provided' do
       it 'does not return outdated gems that match any failed gems' do
-        bundle = double(Lapidarist::BundleCommand)
-        allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
-        gemfile = double(Lapidarist::Gemfile)
-        allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-        options = double(Lapidarist::Options, directory: '/foo', all: true, verbosity: 0, log_path: nil, quiet: true, update_limit: nil)
+        bundle = stub_bundle_command
 
         gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
         gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-        outdated_gems = Lapidarist::Outdated.new(options).run(%w(rack))
+        outdated_gems = Lapidarist::Outdated.new(build_options).run(%w(rack))
 
         expect(outdated_gems.length).to eq 1
         expect(outdated_gems).to eq [gem_2]
@@ -83,11 +71,8 @@ RSpec.describe Lapidarist::Outdated do
 
     context 'when a limit is requested' do
       it 'only returns enough gems to fulfill the limit' do
-        bundle = double(Lapidarist::BundleCommand)
-        allow(Lapidarist::BundleCommand).to receive(:new) { bundle }
-        gemfile = double(Lapidarist::Gemfile)
-        allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-        options = double(Lapidarist::Options, directory: '/foo', all: true, verbosity: 0, log_path: nil, quiet: true, update_limit: 1)
+        bundle = stub_bundle_command
+        options = build_options(update_limit: 1)
 
         gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
         gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')

@@ -3,12 +3,11 @@ require 'spec_helper'
 RSpec.describe Lapidarist::BundleCommand do
   describe '#outdated' do
     it 'calls bundle outdated' do
-      allow(Open3).to receive(:popen2e)
-      options = double(Lapidarist::Options, directory: '/foo', verbosity: 0, debug: false, log_path: nil)
+      shell = stub_shell
 
-      Lapidarist::BundleCommand.new(options).outdated.to_a
+      Lapidarist::BundleCommand.new(build_options).outdated.to_a
 
-      expect(Open3).to have_received(:popen2e).with('bundle outdated --strict --parseable', chdir: '/foo')
+      expect(shell).to have_received(:run).with('bundle outdated --strict --parseable')
     end
 
     it 'parses each line from the output and returns outdated gem objects' do
@@ -18,10 +17,9 @@ RSpec.describe Lapidarist::BundleCommand do
         'rake (newest 12.3.1, installed 10.5.0, requested ~> 10.0)',
         nil
       )
-      allow(Open3).to receive(:popen2e).and_yield('', std_out)
-      options = double(Lapidarist::Options, directory: '', verbosity: 0, debug: false, log_path: nil)
+      stub_shell { std_out }
 
-      outdated_gems = Lapidarist::BundleCommand.new(options).outdated.to_a
+      outdated_gems = Lapidarist::BundleCommand.new(build_options).outdated.to_a
 
       expect(outdated_gems.length).to eq 2
       expect(outdated_gems[0]).to eq Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
@@ -31,36 +29,31 @@ RSpec.describe Lapidarist::BundleCommand do
 
   describe '#update' do
     it 'calls bundle update' do
-      allow(Open3).to receive(:popen2e)
-      options = double(Lapidarist::Options, directory: '/foo', verbosity: 0, debug: false, log_path: nil)
+      shell = stub_shell
 
-      gem = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: nil, current_version: nil)
-      Lapidarist::BundleCommand.new(options).update(gem)
+      gem = stub_gem(name: 'rack')
+      Lapidarist::BundleCommand.new(build_options).update(gem)
 
-      expect(Open3).to have_received(:popen2e).with('bundle update rack', chdir: '/foo')
+      expect(shell).to have_received(:run).with('bundle update rack')
     end
   end
 
   describe '#version' do
     it 'calls bundle list + grep' do
-      allow(Open3).to receive(:pipeline_r)
-      options = double(Lapidarist::Options, directory: '/foo', verbosity: 0, debug: false, log_path: nil)
+      shell = stub_shell('')
 
-      gem = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: nil, current_version: nil)
-      Lapidarist::BundleCommand.new(options).version(gem)
+      gem = stub_gem(name: 'rack')
+      Lapidarist::BundleCommand.new(build_options).version(gem)
 
-      expect(Open3).to have_received(:pipeline_r).with('bundle list', "grep \" rack \"", chdir: '/foo')
+      expect(shell).to have_received(:run).with('bundle list', "grep \" rack \"")
     end
 
     context 'when the requested gem exists in the output' do
       it 'returns the version' do
-        std_out = double(:STD_OUT)
-        allow(std_out).to receive(:read).and_return('  * bundler (1.16.1)')
-        allow(Open3).to receive(:pipeline_r).and_yield(std_out, [])
-        options = double(Lapidarist::Options, directory: '', verbosity: 0, debug: false, log_path: nil)
+        stub_shell('  * bundler (1.16.1)')
 
-        bundle = Lapidarist::BundleCommand.new(options)
-        gem = Lapidarist::OutdatedGem.new(name: 'bundler', current_version: nil, newest_version: nil)
+        bundle = Lapidarist::BundleCommand.new(build_options)
+        gem = stub_gem(name: 'bundler')
 
         expect(bundle.version(gem)).to eq '1.16.1'
       end
@@ -68,13 +61,10 @@ RSpec.describe Lapidarist::BundleCommand do
 
     context 'when the requested gem does not exist in the output' do
       it 'returns nil' do
-        std_out = double(:STD_OUT)
-        allow(std_out).to receive(:read).and_return('')
-        allow(Open3).to receive(:pipeline_r).and_yield(std_out, [])
-        options = double(Lapidarist::Options, directory: '.', verbosity: 0, debug: false, log_path: nil)
+        stub_shell('')
 
-        bundle = Lapidarist::BundleCommand.new(options)
-        gem = Lapidarist::OutdatedGem.new(name: 'rake', current_version: nil, newest_version: nil)
+        bundle = Lapidarist::BundleCommand.new(build_options)
+        gem = stub_gem(name: 'rake')
 
         expect(bundle.version(gem)).to be_nil
       end

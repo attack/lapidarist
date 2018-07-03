@@ -5,18 +5,10 @@ RSpec.describe Lapidarist::CLI do
     context 'when there are is only one outdated gem' do
       context 'and it fails the test' do
         it 'does no run git bisect' do
-          git = double(Lapidarist::GitCommand, bisect: nil, head: nil, reset_hard: nil)
-          allow(Lapidarist::GitCommand).to receive(:new) { git }
-
-          outdated = double(Lapidarist::Outdated)
-          allow(Lapidarist::Outdated).to receive(:new) { outdated }
-          allow(outdated).to receive(:run).and_return([double(Lapidarist::OutdatedGem, name: 'foo gem')], [])
-
-          update = double(Lapidarist::Update, run: nil)
-          allow(Lapidarist::Update).to receive(:new) { update }
-
-          test = double(Lapidarist::TestCommand, success?: false)
-          allow(Lapidarist::TestCommand).to receive(:new) { test }
+          stub_outdated([stub_gem], [])
+          stub_update
+          stub_test_command(success: false)
+          git = stub_git
 
           Lapidarist::CLI.new(['-q']).run
 
@@ -24,18 +16,10 @@ RSpec.describe Lapidarist::CLI do
         end
 
         it 'skips the gem on the next interation' do
-          git = double(Lapidarist::GitCommand, bisect: nil, head: nil, reset_hard: nil)
-          allow(Lapidarist::GitCommand).to receive(:new) { git }
-
-          outdated = double(Lapidarist::Outdated)
-          allow(Lapidarist::Outdated).to receive(:new) { outdated }
-          allow(outdated).to receive(:run).and_return([double(Lapidarist::OutdatedGem, name: 'foo gem')], [])
-
-          update = double(Lapidarist::Update, run: nil)
-          allow(Lapidarist::Update).to receive(:new) { update }
-
-          test = double(Lapidarist::TestCommand, success?: false)
-          allow(Lapidarist::TestCommand).to receive(:new) { test }
+          outdated = stub_outdated([stub_gem(name: 'foo gem')], [])
+          stub_update
+          stub_test_command(success: false)
+          stub_git
 
           Lapidarist::CLI.new(['-q']).run
 
@@ -43,18 +27,10 @@ RSpec.describe Lapidarist::CLI do
         end
 
         it 'removes the single commit added by update' do
-          git = double(Lapidarist::GitCommand, bisect: nil, head: nil, reset_hard: nil)
-          allow(Lapidarist::GitCommand).to receive(:new) { git }
-
-          outdated = double(Lapidarist::Outdated)
-          allow(Lapidarist::Outdated).to receive(:new) { outdated }
-          allow(outdated).to receive(:run).and_return([double(Lapidarist::OutdatedGem, name: 'foo gem')], [])
-
-          update = double(Lapidarist::Update, run: nil)
-          allow(Lapidarist::Update).to receive(:new) { update }
-
-          test = double(Lapidarist::TestCommand, success?: false)
-          allow(Lapidarist::TestCommand).to receive(:new) { test }
+          stub_outdated([stub_gem], [])
+          stub_update
+          stub_test_command(success: false)
+          git = stub_git
 
           Lapidarist::CLI.new(['-q']).run
 
@@ -66,18 +42,10 @@ RSpec.describe Lapidarist::CLI do
     context 'when there are multiple outdated gem' do
       context 'and they fail the test' do
         it 'runs git bisect' do
-          git = double(Lapidarist::GitCommand, bisect: nil, head: nil)
-          allow(Lapidarist::GitCommand).to receive(:new) { git }
-
-          outdated = double(Lapidarist::Outdated)
-          allow(Lapidarist::Outdated).to receive(:new) { outdated }
-          allow(outdated).to receive(:run).and_return([double(Lapidarist::OutdatedGem), double(Lapidarist::OutdatedGem)], [])
-
-          update = double(Lapidarist::Update, run: nil)
-          allow(Lapidarist::Update).to receive(:new) { update }
-
-          test = double(Lapidarist::TestCommand, success?: false)
-          allow(Lapidarist::TestCommand).to receive(:new) { test }
+          stub_outdated([stub_gem, stub_gem], [])
+          stub_update
+          stub_test_command(success: false)
+          git = stub_git
 
           Lapidarist::CLI.new(['-q']).run
 
