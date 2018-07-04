@@ -22,6 +22,11 @@ module Lapidarist
       last_good_sha = git.head
       logger.debug("start sha: #{last_good_sha}")
 
+      unless git.clean?
+        logger.footer('stopping, there are uncommitted changes')
+        return 1
+      end
+
       update = Update.new(options)
       outdated = Outdated.new(options)
 

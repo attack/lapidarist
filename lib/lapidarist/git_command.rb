@@ -32,6 +32,10 @@ module Lapidarist
       shell.run("git reset --hard #{ref}")
     end
 
+    def clean?
+      shell.run('[ -z "$(git status --porcelain)" ]')[1] == 0
+    end
+
     private
 
     attr_reader :shell, :options, :logger
