@@ -62,7 +62,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-        outdated_gems = Lapidarist::Outdated.new(build_options).run(%w(rack))
+        outdated_gems = Lapidarist::Outdated.new(build_options).run(failed_gem_names: %w(rack))
 
         expect(outdated_gems.length).to eq 1
         expect(outdated_gems).to eq [gem_2]
@@ -79,9 +79,16 @@ RSpec.describe Lapidarist::Outdated do
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
         outdated_gems = Lapidarist::Outdated.new(options).run
-
         expect(outdated_gems.length).to eq 1
         expect(outdated_gems).to eq [gem_1]
+
+        outdated_gems = Lapidarist::Outdated.new(options).run(updated_count: 1)
+        expect(outdated_gems.length).to eq 0
+        expect(outdated_gems).to be_empty
+
+        outdated_gems = Lapidarist::Outdated.new(options).run(updated_count: 2)
+        expect(outdated_gems.length).to eq 0
+        expect(outdated_gems).to be_empty
       end
     end
   end

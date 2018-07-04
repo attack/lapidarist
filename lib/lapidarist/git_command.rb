@@ -36,6 +36,10 @@ module Lapidarist
       shell.run('[ -z "$(git status --porcelain)" ]')[1] == 0
     end
 
+    def count_commits(start_sha, end_sha)
+      shell.run("git rev-list #{end_sha} ^#{start_sha} --count")[0].to_i
+    end
+
     private
 
     attr_reader :shell, :options, :logger

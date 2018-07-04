@@ -10,7 +10,6 @@ module Lapidarist
     end
 
     def run
-      failing_gem_names = []
       logger.header('Starting lapidarist')
       logger.debug("directory: #{options.directory}", :options)
       logger.debug("test_script: #{options.test_script}", :options)
@@ -19,7 +18,6 @@ module Lapidarist
       logger.debug("verbosity: #{options.verbosity}", :options)
       logger.debug("commit_flags: #{options.commit_flags}", :options)
 
-      attempts = 0
       last_good_sha = git.head
       logger.debug("start sha: #{last_good_sha}")
 
@@ -28,14 +26,18 @@ module Lapidarist
         return 1
       end
 
+      progress = Progress.new
       update = Update.new(options)
       outdated = Outdated.new(options)
 
       for i in 1..Float::INFINITY
-        attempts += 1
-        logger.header("Attempt ##{attempts}")
+        progress.attempt!
+        logger.header("Attempt ##{progress.attempts}")
 
-        outdated_gems = outdated.run(failing_gem_names)
+        outdated_gems = outdated.run(
+          failed_gem_names: progress.failed_gems,
+          updated_count: progress.updated_gems
+        )
 
         if outdated_gems.empty?
           logger.footer('stopping, there are no applicable outdated gems')
@@ -46,6 +48,7 @@ module Lapidarist
 
         logger.header("Testing gem updates")
         if test.success?
+          progress.updated_gems!(outdated_gems.length)
           logger.footer('test passed, nothing left to do')
           break
         else
@@ -53,25 +56,57 @@ module Lapidarist
         end
 
         if outdated_gems.one?
-          failing_gem_names << outdated_gems.first.name
+          progress.failed_gem!(outdated_gems.first.name)
           git.reset_hard('HEAD^')
         else
-          failing_gem_names << git.bisect(last_good_sha, test)
+          failed_gem = git.bisect(last_good_sha, test)
+          progress.failed_gem!(failed_gem)
         end
 
+        previous_good_sha = last_good_sha
         last_good_sha = git.head
         logger.debug("retry from sha: #{last_good_sha}")
+        new_commits = git.count_commits(previous_good_sha, last_good_sha)
+        progress.updated_gems!(new_commits)
       end
 
-      ending_sha = git.head
-      logger.debug("end sha: #{ending_sha}")
-      status = (last_good_sha == ending_sha && attempts > 1) ? 1 : 0
-
-      return status
+      return progress.exit_status
     end
 
     private
 
     attr_reader :options, :git, :test, :logger
+
+    class Progress
+      attr_reader :attempts, :updated_gems, :failed_gems
+
+      def initialize
+        @attempts = 0
+        @updated_gems = 0
+        @failed_gems = []
+      end
+
+      def attempt!
+        @attempts += 1
+      end
+
+      def updated_gems!(count)
+        @updated_gems += count
+      end
+
+      def failed_gem!(gem)
+        @failed_gems << gem
+      end
+
+      def exit_status
+        success? ? 0 : 1
+      end
+
+      private
+
+      def success?
+        updated_gems > 0 || attempts == 1
+      end
+    end
   end
 end

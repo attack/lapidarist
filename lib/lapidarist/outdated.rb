@@ -7,7 +7,7 @@ module Lapidarist
       @logger = Logger.new(options)
     end
 
-    def run(failed_gem_names = [])
+    def run(failed_gem_names: [], updated_count: 0)
       logger.header('Detecting outdated gems')
 
       gems = bundle.outdated.each_with_object([]) do |gem, results|
@@ -21,7 +21,8 @@ module Lapidarist
       end
 
       if options.update_limit
-        gems = gems.take(options.update_limit)
+        remaining_gems = [options.update_limit - updated_count, 0].max
+        gems = gems.take(remaining_gems)
       end
 
       gems

@@ -23,7 +23,7 @@ RSpec.describe Lapidarist::CLI do
 
           Lapidarist::CLI.new(['-q']).run
 
-          expect(outdated).to have_received(:run).with(['foo gem']).at_least(:once)
+          expect(outdated).to have_received(:run).with(hash_including(failed_gem_names: ['foo gem'])).at_least(:once)
         end
 
         it 'removes the single commit added by update' do

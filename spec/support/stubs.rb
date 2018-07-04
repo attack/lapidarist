@@ -64,7 +64,7 @@ module Lapidarist
     end
 
     def stub_git
-      git = double(Lapidarist::GitCommand, bisect: nil, head: nil, reset_hard: nil, clean?: true)
+      git = double(Lapidarist::GitCommand, bisect: nil, head: nil, reset_hard: nil, clean?: true, count_commits: 0)
       allow(Lapidarist::GitCommand).to receive(:new) { git }
       git
     end
