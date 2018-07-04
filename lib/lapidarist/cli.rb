@@ -19,6 +19,7 @@ module Lapidarist
       logger.debug("verbosity: #{options.verbosity}", :options)
       logger.debug("commit_flags: #{options.commit_flags}", :options)
 
+      attempts = 0
       last_good_sha = git.head
       logger.debug("start sha: #{last_good_sha}")
 
@@ -31,7 +32,8 @@ module Lapidarist
       outdated = Outdated.new(options)
 
       for i in 1..Float::INFINITY
-        logger.header("Attempt ##{i}")
+        attempts += 1
+        logger.header("Attempt ##{attempts}")
 
         outdated_gems = outdated.run(failing_gem_names)
 
@@ -61,7 +63,11 @@ module Lapidarist
         logger.debug("retry from sha: #{last_good_sha}")
       end
 
-      return 1
+      ending_sha = git.head
+      logger.debug("end sha: #{ending_sha}")
+      status = (last_good_sha == ending_sha && attempts > 1) ? 1 : 0
+
+      return status
     end
 
     private

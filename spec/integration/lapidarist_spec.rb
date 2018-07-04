@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'tmpdir'
 require 'open3'
 require 'pathname'
+require 'singleton'
 
 RSpec.describe 'Lapidarist CLI', type: :integration do
   describe '# lapidarist' do
@@ -34,6 +35,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.to change { git.commit_messages.length }.by(2)
+          expect(exit_status).to be_success
 
           git_commits = git.commit_messages
           expect(git_commits).to include 'Update sprockets from 3.7.0 to 3.7.1'
@@ -67,6 +69,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh --all -q")
           }.to change { git.commit_messages.length }.by(4)
+          expect(exit_status).to be_success
 
           git_commits = git.commit_messages
           expect(git_commits).to include 'Update public_suffix from 3.0.1 to 3.0.2'
@@ -102,6 +105,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.to change { git.commit_messages.length }.by(3)
+          expect(exit_status).to be_success
 
           git_commits = git.commit_messages
           expect(git_commits).to include 'Update sprockets from 3.7.0 to 3.7.1'
@@ -134,6 +138,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.to change { git.commit_messages.length }.by(2)
+          expect(exit_status).to be_success
 
           git_commits = git.commit_messages
           expect(git_commits).to include 'Update addressable dependencies'
@@ -158,6 +163,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.not_to change { git.commit_messages.length }
+          expect(exit_status).not_to be_success
         end
       end
     end
@@ -178,6 +184,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.not_to change { git.commit_messages.length }
+          expect(exit_status).to be_success
         end
       end
     end
@@ -200,6 +207,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.not_to change { git.commit_messages.length }
+          expect(exit_status).not_to be_success
         end
       end
     end
@@ -215,6 +223,21 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
 
       yield(fake_env, bundle, git)
     end
+  end
+
+  def exit_status
+    raise 'unknown exit status' unless ExitStatus.instance.valid?
+    ExitStatus.instance.status
+  end
+end
+
+class ExitStatus
+  include Singleton
+
+  attr_accessor :status
+
+  def valid?
+    !status.nil?
   end
 end
 
@@ -297,11 +320,12 @@ class FakeBundle
   end
 
   def exec(command)
-    stdout, stderr, exit_status = env.run("bundle exec #{command}")
+    stdout, stderr, status = env.run("bundle exec #{command}")
     unless stderr.empty?
       puts stderr
     end
-    [stdout, stderr, exit_status]
+    ExitStatus.instance.status = status
+    [stdout, stderr, status]
   end
 
   private
