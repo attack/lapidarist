@@ -36,7 +36,7 @@ module Lapidarist
 
         outdated_gems = outdated.run(
           failed_gems: progress.failed_gems,
-          updated_count: progress.updated_gems
+          updated_count: progress.updated_gems.length
         )
 
         if outdated_gems.empty?
@@ -48,7 +48,7 @@ module Lapidarist
 
         logger.header("Testing gem updates")
         if test.success?
-          progress.updated_gems!(outdated_gems.length)
+          attempt.updated!(outdated_gems)
           logger.footer('test passed, nothing left to do')
           break
         else
@@ -67,8 +67,9 @@ module Lapidarist
         previous_good_sha = last_good_sha
         last_good_sha = git.head
         logger.debug("retry from sha: #{last_good_sha}")
-        new_commits = git.count_commits(previous_good_sha, last_good_sha)
-        progress.updated_gems!(new_commits)
+
+        new_commit_count = git.count_commits(previous_good_sha, last_good_sha)
+        attempt.updated!(outdated_gems.take(new_commit_count))
       end
 
       return progress.exit_status
@@ -79,11 +80,10 @@ module Lapidarist
     attr_reader :options, :git, :test, :logger
 
     class Progress
-      attr_reader :attempts, :updated_gems
+      attr_reader :attempts
 
       def initialize
         @attempts = []
-        @updated_gems = 0
       end
 
       def attempt!
@@ -96,8 +96,8 @@ module Lapidarist
         attempts.map { |a| a.failed }.compact
       end
 
-      def updated_gems!(count)
-        @updated_gems += count
+      def updated_gems
+        attempts.map { |a| a.updated }.flatten(1).compact
       end
 
       def exit_status
@@ -107,12 +107,16 @@ module Lapidarist
       private
 
       def success?
-        updated_gems > 0 || attempts.one?
+        updated_gems.any? || attempts.one?
       end
     end
 
     class Attempt
-      attr_reader :failed
+      attr_reader :updated, :failed
+
+      def updated!(gems)
+        @updated = gems
+      end
 
       def failed!(gem)
         @failed = gem
