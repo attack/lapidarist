@@ -31,8 +31,8 @@ module Lapidarist
       outdated = Outdated.new(options)
 
       for i in 1..Float::INFINITY
-        progress.attempt!
-        logger.header("Attempt ##{progress.attempts}")
+        attempt = progress.attempt!
+        logger.header("Attempt ##{progress.attempts.length}")
 
         outdated_gems = outdated.run(
           failed_gem_names: progress.failed_gems,
@@ -81,13 +81,15 @@ module Lapidarist
       attr_reader :attempts, :updated_gems, :failed_gems
 
       def initialize
-        @attempts = 0
+        @attempts = []
         @updated_gems = 0
         @failed_gems = []
       end
 
       def attempt!
-        @attempts += 1
+        attempt = Attempt.new
+        @attempts << attempt
+        attempt
       end
 
       def updated_gems!(count)
@@ -105,8 +107,11 @@ module Lapidarist
       private
 
       def success?
-        updated_gems > 0 || attempts == 1
+        updated_gems > 0 || attempts.one?
       end
+    end
+
+    class Attempt
     end
   end
 end

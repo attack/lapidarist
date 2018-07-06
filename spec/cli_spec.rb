@@ -4,7 +4,7 @@ RSpec.describe Lapidarist::CLI do
   describe '#run' do
     context 'when there are is only one outdated gem' do
       context 'and it fails the test' do
-        it 'does no run git bisect' do
+        it 'does not run git bisect' do
           stub_outdated([stub_gem], [])
           stub_update
           stub_test_command(success: false)
