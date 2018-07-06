@@ -10,9 +10,12 @@ require_relative 'lapidarist/shell'
 require_relative 'lapidarist/bundle_command'
 require_relative 'lapidarist/git_command'
 require_relative 'lapidarist/test_command'
-
 require_relative 'lapidarist/outdated'
 require_relative 'lapidarist/update'
+
+require_relative 'lapidarist/attempt'
+require_relative 'lapidarist/progress'
+require_relative 'lapidarist/summary'
 require_relative 'lapidarist/cli'
 
 module Lapidarist

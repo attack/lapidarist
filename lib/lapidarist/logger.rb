@@ -47,6 +47,11 @@ module Lapidarist
       end
     end
 
+    def summary(message)
+      write_std_out(message, 0)
+      write_log_file(message)
+    end
+
     private
 
     attr_reader :options

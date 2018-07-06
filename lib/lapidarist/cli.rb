@@ -13,10 +13,6 @@ module Lapidarist
       logger.header('Starting lapidarist')
       logger.debug("directory: #{options.directory}", :options)
       logger.debug("test_script: #{options.test_script}", :options)
-      logger.debug("all: #{options.all}", :options)
-      logger.debug("quiet: #{options.quiet}", :options)
-      logger.debug("verbosity: #{options.verbosity}", :options)
-      logger.debug("commit_flags: #{options.commit_flags}", :options)
 
       last_good_sha = git.head
       logger.debug("start sha: #{last_good_sha}")
@@ -30,7 +26,7 @@ module Lapidarist
       update = Update.new(options)
       outdated = Outdated.new(options)
 
-      for i in 1..Float::INFINITY
+      loop do
         attempt = progress.attempt!
         logger.header("Attempt ##{progress.attempts.length}")
 
@@ -72,55 +68,13 @@ module Lapidarist
         attempt.updated!(outdated_gems.take(new_commit_count))
       end
 
+      Summary.new(progress, logger).display
+
       return progress.exit_status
     end
 
     private
 
     attr_reader :options, :git, :test, :logger
-
-    class Progress
-      attr_reader :attempts
-
-      def initialize
-        @attempts = []
-      end
-
-      def attempt!
-        attempt = Attempt.new
-        @attempts << attempt
-        attempt
-      end
-
-      def failed_gems
-        attempts.map { |a| a.failed }.compact
-      end
-
-      def updated_gems
-        attempts.map { |a| a.updated }.flatten(1).compact
-      end
-
-      def exit_status
-        success? ? 0 : 1
-      end
-
-      private
-
-      def success?
-        updated_gems.any? || attempts.one?
-      end
-    end
-
-    class Attempt
-      attr_reader :updated, :failed
-
-      def updated!(gems)
-        @updated = gems
-      end
-
-      def failed!(gem)
-        @failed = gem
-      end
-    end
   end
 end
