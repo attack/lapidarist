@@ -35,7 +35,7 @@ module Lapidarist
         logger.header("Attempt ##{progress.attempts.length}")
 
         outdated_gems = outdated.run(
-          failed_gem_names: progress.failed_gems,
+          failed_gems: progress.failed_gems,
           updated_count: progress.updated_gems
         )
 
@@ -56,11 +56,12 @@ module Lapidarist
         end
 
         if outdated_gems.one?
-          progress.failed_gem!(outdated_gems.first.name)
+          attempt.failed!(outdated_gems.first)
           git.reset_hard('HEAD^')
         else
-          failed_gem = git.bisect(last_good_sha, test)
-          progress.failed_gem!(failed_gem)
+          failed_gem_name = git.bisect(last_good_sha, test)
+          failed_gem = outdated_gems.detect { |g| failed_gem_name == g.name }
+          attempt.failed!(failed_gem)
         end
 
         previous_good_sha = last_good_sha
@@ -78,12 +79,11 @@ module Lapidarist
     attr_reader :options, :git, :test, :logger
 
     class Progress
-      attr_reader :attempts, :updated_gems, :failed_gems
+      attr_reader :attempts, :updated_gems
 
       def initialize
         @attempts = []
         @updated_gems = 0
-        @failed_gems = []
       end
 
       def attempt!
@@ -92,12 +92,12 @@ module Lapidarist
         attempt
       end
 
-      def updated_gems!(count)
-        @updated_gems += count
+      def failed_gems
+        attempts.map { |a| a.failed }.compact
       end
 
-      def failed_gem!(gem)
-        @failed_gems << gem
+      def updated_gems!(count)
+        @updated_gems += count
       end
 
       def exit_status
@@ -112,6 +112,11 @@ module Lapidarist
     end
 
     class Attempt
+      attr_reader :failed
+
+      def failed!(gem)
+        @failed = gem
+      end
     end
   end
 end

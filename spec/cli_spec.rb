@@ -16,14 +16,16 @@ RSpec.describe Lapidarist::CLI do
         end
 
         it 'skips the gem on the next interation' do
-          outdated = stub_outdated([stub_gem(name: 'foo gem')], [])
+          failing_gem = stub_gem(name: 'foo gem')
+          outdated = stub_outdated([failing_gem], [])
           stub_update
           stub_test_command(success: false)
           stub_git
 
           Lapidarist::CLI.new(['-q']).run
 
-          expect(outdated).to have_received(:run).with(hash_including(failed_gem_names: ['foo gem'])).at_least(:once)
+          expect(outdated).to have_received(:run).with(hash_including(failed_gems: [])).once
+          expect(outdated).to have_received(:run).with(hash_including(failed_gems: [failing_gem])).once
         end
 
         it 'removes the single commit added by update' do
