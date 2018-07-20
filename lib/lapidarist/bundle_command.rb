@@ -9,8 +9,11 @@ module Lapidarist
     def outdated
       shell.run('cat Gemfile') if options.debug
 
+      command = ['bundle outdated', '--strict']
+      command << "--group #{options.group}" if options.group
+
       Enumerator.new do |y|
-        shell.run('bundle outdated --strict') do |std_out_err|
+        shell.run(command.join(' ')) do |std_out_err|
           while line = std_out_err.gets
             logger.std_out_err(line, 'bundle outdated')
             gem = parse_gem_from(line)
