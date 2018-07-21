@@ -10,21 +10,12 @@ module Lapidarist
       shell.run('cat Gemfile') if options.debug
 
       Enumerator.new do |y|
-        shell.run(outdated_command(group: options.group)) do |std_out_err|
-          while line = std_out_err.gets
-            logger.std_out_err(line, 'bundle outdated')
-            gem = parse_gem_from(line)
-            y.yield(gem) if gem
-          end
-        end
-
-        if options.group
-          shell.run(outdated_command(group: " #{options.group}")) do |std_out_err|
-            while line = std_out_err.gets
-              logger.std_out_err(line, 'bundle outdated')
-              gem = parse_gem_from(line)
-              y.yield(gem) if gem
-            end
+        if options.groups.none?
+          _outdated(outdated_command, y)
+        else
+          options.groups.each do |group|
+            _outdated(outdated_command(group: group), y)
+            _outdated(outdated_command(group: " #{group}"), y)
           end
         end
       end
@@ -52,10 +43,20 @@ module Lapidarist
       end
     end
 
-    def outdated_command(group:)
+    def outdated_command(group: nil)
       command = ['bundle outdated', '--strict']
       command << "--group=\"#{group}\"" if group
       command.join(' ')
+    end
+
+    def _outdated(command, y)
+      shell.run(command) do |std_out_err|
+        while line = std_out_err.gets
+          logger.std_out_err(line, 'bundle outdated')
+          gem = parse_gem_from(line)
+          y.yield(gem) if gem
+        end
+      end
     end
   end
 end

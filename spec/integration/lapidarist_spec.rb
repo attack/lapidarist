@@ -236,19 +236,21 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add git bisect test file', 'test.sh')
 
           bundle.add_gem(:"concurrent-ruby", '1.0.4', '<= 1.0.5', nil)
+          bundle.add_gem(:httpclient, '2.8.2', '<= 2.8.3', :acceptance)
           bundle.add_gem(:rack, '2.0.4', '<= 2.0.5', [:test])
           bundle.add_gem(:rake, '12.3.0', '<= 12.3.1', [:development, :test])
           bundle.install
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -g test")
-          }.to change { git.commit_messages.length }.by(2)
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -g test -g acceptance")
+          }.to change { git.commit_messages.length }.by(3)
           expect(exit_status).to be_success
 
           git_commits = git.commit_messages
           expect(git_commits).to include 'Update rake from 12.3.0 to 12.3.1'
           expect(git_commits).to include 'Update rack from 2.0.4 to 2.0.5'
+          expect(git_commits).to include 'Update httpclient from 2.8.2 to 2.8.3'
         end
       end
     end
