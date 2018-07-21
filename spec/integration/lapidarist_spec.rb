@@ -235,18 +235,20 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           end
           git.commit_files('add git bisect test file', 'test.sh')
 
-          bundle.add_gem(:rack, '2.0.4', '<= 2.0.5')
-          bundle.add_gem(:rake, '12.3.0', '<= 12.3.1', 'test')
+          bundle.add_gem(:"concurrent-ruby", '1.0.4', '<= 1.0.5', nil)
+          bundle.add_gem(:rack, '2.0.4', '<= 2.0.5', [:test])
+          bundle.add_gem(:rake, '12.3.0', '<= 12.3.1', [:development, :test])
           bundle.install
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -g test")
-          }.to change { git.commit_messages.length }.by(1)
+          }.to change { git.commit_messages.length }.by(2)
           expect(exit_status).to be_success
 
           git_commits = git.commit_messages
           expect(git_commits).to include 'Update rake from 12.3.0 to 12.3.1'
+          expect(git_commits).to include 'Update rack from 2.0.4 to 2.0.5'
         end
       end
     end
@@ -358,11 +360,11 @@ class FakeBundle
     @sub_dependencies = {}
   end
 
-  def add_gem(name, version, constraint, group = nil, *sub_dependencies)
+  def add_gem(name, version, constraint, groups = [], *sub_dependencies)
     gem = {
       version: version,
       constraint: constraint,
-      group: group,
+      groups: Array(groups),
       sub_dependencies: {}
     }
 
@@ -401,10 +403,12 @@ class FakeBundle
       f.puts "gem 'lapidarist', path: '#{env.pwd}'"
 
       gems.each do |gem_name, gem_info|
-        if gem_info[:group]
-          f.puts "gem '#{gem_name}', '#{gem_info[:constraint]}', group: :#{gem_info[:group]}"
-        else
+        if gem_info[:groups].none?
           f.puts "gem '#{gem_name}', '#{gem_info[:constraint]}'"
+        elsif gem_info[:groups].one?
+          f.puts "gem '#{gem_name}', '#{gem_info[:constraint]}', group: :#{gem_info[:groups].first}"
+        else
+          f.puts "gem '#{gem_name}', '#{gem_info[:constraint]}', groups: #{gem_info[:groups]}"
         end
       end
     end

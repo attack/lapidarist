@@ -9,15 +9,22 @@ module Lapidarist
     def outdated
       shell.run('cat Gemfile') if options.debug
 
-      command = ['bundle outdated', '--strict']
-      command << "--group #{options.group}" if options.group
-
       Enumerator.new do |y|
-        shell.run(command.join(' ')) do |std_out_err|
+        shell.run(outdated_command(group: options.group)) do |std_out_err|
           while line = std_out_err.gets
             logger.std_out_err(line, 'bundle outdated')
             gem = parse_gem_from(line)
             y.yield(gem) if gem
+          end
+        end
+
+        if options.group
+          shell.run(outdated_command(group: " #{options.group}")) do |std_out_err|
+            while line = std_out_err.gets
+              logger.std_out_err(line, 'bundle outdated')
+              gem = parse_gem_from(line)
+              y.yield(gem) if gem
+            end
           end
         end
       end
@@ -43,6 +50,12 @@ module Lapidarist
       unless regex.nil?
         OutdatedGem.new(name: regex[1], newest_version: regex[2], current_version: regex[3])
       end
+    end
+
+    def outdated_command(group:)
+      command = ['bundle outdated', '--strict']
+      command << "--group=\"#{group}\"" if group
+      command.join(' ')
     end
   end
 end
