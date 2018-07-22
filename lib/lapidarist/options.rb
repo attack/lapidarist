@@ -19,6 +19,7 @@ module Lapidarist
       options.log_path = Pathname.new('./tmp/lapidarist.log')
       options.update_limit = nil
       options.groups = []
+      options.policy = :major
 
       opt_parser = OptionParser.new do |opts|
         opts.on("-d", "--directory DIRECTORY", "Directory to run Lapidarist from.") do |d|
@@ -59,6 +60,24 @@ module Lapidarist
 
         opts.on("-g GROUP_NAME", "--group GROUP_NAME", "Limit gems to be updated to a specified group(s).") do |g|
           options.groups << g
+        end
+
+        opts.on("-p UPGRADE_LEVEL", "--policy UPGRADE_LEVEL", "Limit updates to the specificed threshold.") do |p|
+          if [:major, :minor, :patch].include?(p.to_sym)
+            options.policy = p.to_sym
+          end
+        end
+
+        opts.on("--major", "Limit updates to major, minor and patch versions (essentially everything).") do |p|
+          options.policy = :major
+        end
+
+        opts.on("--minor", "Limit updates to minor and patch versions.") do |p|
+          options.policy = :minor
+        end
+
+        opts.on("--patch", "Limit updates to patch versions.") do |p|
+          options.policy = :patch
         end
       end
 

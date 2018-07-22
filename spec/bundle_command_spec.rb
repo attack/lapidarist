@@ -39,7 +39,40 @@ RSpec.describe Lapidarist::BundleCommand do
       gem = stub_gem(name: 'rack')
       Lapidarist::BundleCommand.new(build_options).update(gem)
 
-      expect(shell).to have_received(:run).with('bundle update rack')
+      expect(shell).to have_received(:run).with('bundle update rack --strict --major')
+    end
+
+    context 'when the policy is major' do
+      it 'calls bundle update restricted to major' do
+        shell = stub_shell
+
+        gem = stub_gem(name: 'rack')
+        Lapidarist::BundleCommand.new(build_options(policy: :major)).update(gem)
+
+        expect(shell).to have_received(:run).with('bundle update rack --strict --major')
+      end
+    end
+
+    context 'when the policy is minor' do
+      it 'calls bundle update restricted to minor' do
+        shell = stub_shell
+
+        gem = stub_gem(name: 'rack')
+        Lapidarist::BundleCommand.new(build_options(policy: :minor)).update(gem)
+
+        expect(shell).to have_received(:run).with('bundle update rack --strict --minor')
+      end
+    end
+
+    context 'when the policy is patch' do
+      it 'calls bundle update restricted to patch' do
+        shell = stub_shell
+
+        gem = stub_gem(name: 'rack')
+        Lapidarist::BundleCommand.new(build_options(policy: :patch)).update(gem)
+
+        expect(shell).to have_received(:run).with('bundle update rack --strict --patch')
+      end
     end
   end
 

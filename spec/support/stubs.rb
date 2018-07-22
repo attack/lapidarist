@@ -20,7 +20,9 @@ module Lapidarist
         commit_flags: nil,
         quiet: true,
         update_limit: nil,
-        all: true
+        all: true,
+        groups: [],
+        policy: :major
       }.merge(args)
 
       unless stub_args[:directory].respond_to?(:dirname)

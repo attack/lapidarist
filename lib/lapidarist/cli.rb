@@ -40,11 +40,11 @@ module Lapidarist
           break
         end
 
-        update.run(outdated_gems)
+        updated_gems = update.run(outdated_gems)
 
         logger.header("Testing gem updates")
         if test.success?
-          attempt.updated!(outdated_gems)
+          attempt.updated!(updated_gems)
           logger.footer('test passed, nothing left to do')
           break
         else

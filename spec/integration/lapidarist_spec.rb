@@ -226,6 +226,35 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
       end
     end
 
+    context 'when the bundler update policy is specified' do
+      it 'updates only gems to the version constrained by the policy' do
+        within_temp_repo do |env, bundle, git|
+          env.write_file('test.sh', 0755) do |f|
+            f.write "#!/usr/bin/env bash\n"
+            f.write "exit 0\n"
+          end
+          git.commit_files('add git bisect test file', 'test.sh')
+
+          bundle.add_gem(:"concurrent-ruby", '1.0.4', '<= 1.0.5')
+          bundle.add_gem(:httpclient, '2.7.1', '<= 2.8.3')
+          bundle.add_gem(:rake, '11.2.0', '<= 12.3.1')
+          bundle.add_gem(:rack, '1.6.10', '<= 2.0.5')
+          bundle.install
+          git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
+
+          expect {
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -p minor")
+          }.to change { git.commit_messages.length }.by(3)
+          expect(exit_status).to be_success
+
+          git_commits = git.commit_messages
+          expect(git_commits).to include 'Update rake from 11.2.0 to 11.3.0'
+          expect(git_commits).to include 'Update httpclient from 2.7.1 to 2.8.3'
+          expect(git_commits).to include 'Update concurrent-ruby from 1.0.4 to 1.0.5'
+        end
+      end
+    end
+
     context 'when the bundler group is specified' do
       it 'updates only the specified gems in the group' do
         within_temp_repo do |env, bundle, git|

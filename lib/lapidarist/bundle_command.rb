@@ -22,7 +22,7 @@ module Lapidarist
     end
 
     def update(gem)
-      shell.run("bundle update #{gem.name}")
+      shell.run("bundle update #{gem.name} --strict --#{options.policy}")
     end
 
     def version(gem)
