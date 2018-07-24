@@ -46,6 +46,10 @@ module Lapidarist
       @groups.sort
     end
 
+    def dependency?
+      groups.any?
+    end
+
     private
 
     def updated?

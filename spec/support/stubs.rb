@@ -46,12 +46,6 @@ module Lapidarist
       bundle
     end
 
-    def stub_gemfile
-      gemfile = double(Lapidarist::Gemfile)
-      allow(Lapidarist::Gemfile).to receive(:new) { gemfile }
-      gemfile
-    end
-
     def stub_outdated(*value)
       outdated = double(Lapidarist::Outdated)
       allow(outdated).to receive(:run).and_return(*value)

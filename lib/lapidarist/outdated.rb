@@ -3,7 +3,6 @@ module Lapidarist
     def initialize(options)
       @options = options
       @bundle = BundleCommand.new(options)
-      @gemfile = Gemfile.new(options)
       @logger = Logger.new(options)
     end
 
@@ -30,12 +29,12 @@ module Lapidarist
 
     private
 
-    attr_reader :bundle, :gemfile, :options, :logger
+    attr_reader :bundle, :options, :logger
 
     def reason_to_skip(gem, failed_gems)
       if failed_gems.include?(gem)
         :failed
-      elsif !options.all && !gemfile.dependency?(gem)
+      elsif !options.all && !gem.dependency?
         :sub_dependency
       elsif options.groups.any? && (options.groups & gem.groups).none?
         :unmatched_group
