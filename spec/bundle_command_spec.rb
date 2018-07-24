@@ -19,16 +19,18 @@ RSpec.describe Lapidarist::BundleCommand do
         '',
         'Outdated gems included in the bundle:',
         '  * rack (newest 2.0.5, installed 2.0.3, requested = 2.0.3) in groups "default"',
-        '  * rake (newest 12.3.1, installed 10.5.0, requested ~> 10.0) in groups "development"',
+        '  * rake (newest 12.3.1, installed 10.5.0) in groups "development, test"',
+        '  * foobar (newest 1.0.0, installed 0.1.0)',
         nil
       )
       stub_shell { std_out }
 
       outdated_gems = Lapidarist::BundleCommand.new(build_options).outdated.to_a
 
-      expect(outdated_gems.length).to eq 2
-      expect(outdated_gems[0]).to eq Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
-      expect(outdated_gems[1]).to eq Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
+      expect(outdated_gems.length).to eq 3
+      expect(outdated_gems[0]).to eq Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3', groups: %w(default))
+      expect(outdated_gems[1]).to eq Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0', groups: %w(development test))
+      expect(outdated_gems[2]).to eq Lapidarist::OutdatedGem.new(name: 'foobar', newest_version: '1.0.0', current_version: '0.1.0')
     end
   end
 

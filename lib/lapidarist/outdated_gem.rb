@@ -2,10 +2,11 @@ module Lapidarist
   class OutdatedGem
     attr_reader :name, :current_version, :newest_version, :target_version
 
-    def initialize(name:, current_version:, newest_version:)
+    def initialize(name:, current_version:, newest_version:, groups: [])
       @name = name
       @current_version = current_version
       @newest_version = newest_version
+      @groups = groups
     end
 
     def target_version=(version)
@@ -23,7 +24,8 @@ module Lapidarist
     def ==(other_gem)
       name == other_gem.name &&
         current_version == other_gem.current_version &&
-        newest_version == other_gem.newest_version
+        newest_version == other_gem.newest_version &&
+        groups == other_gem.groups
     end
 
     def log_s
@@ -38,6 +40,10 @@ module Lapidarist
       end
 
       parts.join(', ')
+    end
+
+    def groups
+      @groups.sort
     end
 
     private

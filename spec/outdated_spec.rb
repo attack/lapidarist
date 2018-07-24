@@ -34,6 +34,25 @@ RSpec.describe Lapidarist::Outdated do
       expect(outdated_gems).to eq [gem_2]
     end
 
+    context 'when updates are restricted to specified groups' do
+      it 'only returns outdated gem objects for the specified groups' do
+        bundle = stub_bundle_command
+        gemfile = stub_gemfile
+        options = build_options(groups: ['test'])
+
+        gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3', groups: %w(default))
+        gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0', groups: %w(development test))
+        gem_3 = Lapidarist::OutdatedGem.new(name: 'rubocop', newest_version: '0.58.2', current_version: '0.58.1', groups: %w(test))
+        allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3] }
+        allow(gemfile).to receive(:dependency?) { true }
+
+        outdated_gems = Lapidarist::Outdated.new(options).run
+
+        expect(outdated_gems.length).to eq 2
+        expect(outdated_gems).to eq [gem_2, gem_3]
+      end
+    end
+
     context 'when all gems should be updated' do
       it 'does not return outdated gems that are not listed in the Gemfile' do
         bundle = stub_bundle_command

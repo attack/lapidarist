@@ -37,6 +37,8 @@ module Lapidarist
         :failed
       elsif !options.all && !gemfile.dependency?(gem)
         :sub_dependency
+      elsif options.groups.any? && (options.groups & gem.groups).none?
+        :unmatched_group
       end
     end
   end
