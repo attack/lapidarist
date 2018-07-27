@@ -226,8 +226,8 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
       end
     end
 
-    context 'when the bundler update policy is specified' do
-      it 'updates only gems to the version constrained by the policy' do
+    context 'when the bundler update version is specified' do
+      it 'updates only gems respecting the version constraint' do
         within_temp_repo do |env, bundle, git|
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
@@ -243,7 +243,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q -p minor")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q --minor")
           }.to change { git.commit_messages.length }.by(3)
           expect(exit_status).to be_success
 

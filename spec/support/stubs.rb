@@ -22,7 +22,7 @@ module Lapidarist
         update_limit: nil,
         all: false,
         groups: [],
-        policy: :major
+        version: :major
       }.merge(args)
 
       unless stub_args[:directory].respond_to?(:dirname)
