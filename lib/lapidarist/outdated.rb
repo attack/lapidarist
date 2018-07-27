@@ -6,35 +6,29 @@ module Lapidarist
       @logger = Logger.new(options)
     end
 
-    def run(failed_gems: [], updated_count: 0)
+    def run
       logger.header('Detecting outdated gems')
 
       gems = bundle.outdated.each_with_object([]) do |gem, results|
-        reason = reason_to_skip(gem, failed_gems)
+        reason = reason_to_skip(gem)
         if reason.nil?
           logger.info(" + #{gem.log_s}")
-          results.push gem
+          results.push OutdatedGem.from(gem)
         else
           logger.info(" - (#{reason}) #{gem.log_s}")
+          results.push SkippedGem.from(gem, reason: reason)
         end
       end
 
-      if options.update_limit
-        remaining_gems = [options.update_limit - updated_count, 0].max
-        gems = gems.take(remaining_gems)
-      end
-
-      gems
+      Gems.new(gems, options)
     end
 
     private
 
     attr_reader :bundle, :options, :logger
 
-    def reason_to_skip(gem, failed_gems)
-      if failed_gems.include?(gem)
-        :failed
-      elsif !options.all && !gem.dependency?
+    def reason_to_skip(gem)
+      if !options.all && !gem.dependency?
         :sub_dependency
       elsif options.groups.any? && (options.groups & gem.groups).none?
         :unmatched_group

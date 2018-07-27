@@ -2,101 +2,78 @@ require 'spec_helper'
 
 RSpec.describe Lapidarist::Outdated do
   describe '#run' do
-    it 'returns a result for each outdated gem' do
+    it 'returns an outdated gem for each gem' do
       bundle = stub_bundle_command
-
-      gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
-      gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
+      gem_1 = Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: ['default'])
+      gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0', groups: ['default'])
       allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-      outdated_gems = Lapidarist::Outdated.new(build_options).run
+      gems = Lapidarist::Outdated.new(build_options).run
 
-      expect(outdated_gems.length).to eq 2
-      expect(outdated_gems).to eq [gem_1, gem_2]
+      expect(gems.count).to eq 2
+      expect(gems.to_a).to eq([
+        Lapidarist::OutdatedGem.from(gem_1),
+        Lapidarist::OutdatedGem.from(gem_2)
+      ])
     end
 
-    it 'does not return outdated gems that are not listed in the Gemfile' do
+    it 'returns a skipped gem for each sub dependency' do
       bundle = stub_bundle_command
-      options = build_options(all: false)
-
-      gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3', groups: [])
-      gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0', groups: %w(default))
+      gem_1 = Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: ['default'])
+      gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0')
       allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-      outdated_gems = Lapidarist::Outdated.new(options).run
+      gems = Lapidarist::Outdated.new(build_options).run
 
-      expect(outdated_gems.length).to eq 1
-      expect(outdated_gems).to eq [gem_2]
-    end
-
-    context 'when updates are restricted to specified groups' do
-      it 'only returns outdated gem objects for the specified groups' do
-        bundle = stub_bundle_command
-        options = build_options(groups: ['test'])
-
-        gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3', groups: %w(default))
-        gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0', groups: %w(development test))
-        gem_3 = Lapidarist::OutdatedGem.new(name: 'rubocop', newest_version: '0.58.2', current_version: '0.58.1', groups: %w(test))
-        allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3] }
-
-        outdated_gems = Lapidarist::Outdated.new(options).run
-
-        expect(outdated_gems.length).to eq 2
-        expect(outdated_gems).to eq [gem_2, gem_3]
-      end
+      expect(gems.count).to eq 2
+      expect(gems.to_a).to eq([
+        Lapidarist::OutdatedGem.from(gem_1),
+        Lapidarist::SkippedGem.from(gem_2, reason: :sub_dependency)
+      ])
     end
 
     context 'when all gems should be updated' do
-      it 'does not return outdated gems that are not listed in the Gemfile' do
+      it 'returns a skipped gem for each sub dependency' do
         bundle = stub_bundle_command
-        options = build_options(all: true)
-
-        gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3', groups: [])
-        gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0', groups: %w(default))
+        gem_1 = Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: ['default'])
+        gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-        outdated_gems = Lapidarist::Outdated.new(options).run
+        gems = Lapidarist::Outdated.new(build_options(all: true)).run
 
-        expect(outdated_gems.length).to eq 2
-        expect(outdated_gems).to eq [gem_1, gem_2]
+        expect(gems.count).to eq 2
+        expect(gems.to_a).to eq([
+          Lapidarist::OutdatedGem.from(gem_1),
+          Lapidarist::OutdatedGem.from(gem_2)
+        ])
       end
     end
 
-    context 'when failed gems are provided' do
-      it 'does not return outdated gems that match any failed gems' do
+    context 'when updates are restricted to specified groups' do
+      it 'returns an outdated gem for each gem in the group' do
         bundle = stub_bundle_command
-
-        gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
-        gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
+        gem_1 = Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: ['default'])
+        gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0', groups: ['test', 'default'])
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-        outdated_gems = Lapidarist::Outdated.new(build_options).run(failed_gems: [gem_1])
+        gems = Lapidarist::Outdated.new(build_options(groups: ['default'])).run
 
-        expect(outdated_gems.length).to eq 1
-        expect(outdated_gems).to eq [gem_2]
+        expect(gems.count).to eq 2
+        expect(gems.to_a).to eq([
+          Lapidarist::OutdatedGem.from(gem_1),
+          Lapidarist::OutdatedGem.from(gem_2)
+        ])
       end
-    end
 
-    context 'when a limit is requested' do
-      it 'only returns enough gems to fulfill the limit' do
+      it 'returns a skipped gem for each gem not in the group' do
         bundle = stub_bundle_command
-        options = build_options(update_limit: 1)
+        gem = Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: ['default'])
+        allow(bundle).to receive(:outdated) { [gem] }
 
-        gem_1 = Lapidarist::OutdatedGem.new(name: 'rack', newest_version: '2.0.5', current_version: '2.0.3')
-        gem_2 = Lapidarist::OutdatedGem.new(name: 'rake', newest_version: '12.3.1', current_version: '10.5.0')
-        allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
+        gems = Lapidarist::Outdated.new(build_options(groups: ['test'])).run
 
-        outdated_gems = Lapidarist::Outdated.new(options).run
-        expect(outdated_gems.length).to eq 1
-        expect(outdated_gems).to eq [gem_1]
-
-        outdated_gems = Lapidarist::Outdated.new(options).run(updated_count: 1)
-        expect(outdated_gems.length).to eq 0
-        expect(outdated_gems).to be_empty
-
-        outdated_gems = Lapidarist::Outdated.new(options).run(updated_count: 2)
-        expect(outdated_gems.length).to eq 0
-        expect(outdated_gems).to be_empty
+        expect(gems.count).to eq 1
+        expect(gems.to_a).to eq([Lapidarist::SkippedGem.from(gem, reason: :unmatched_group)])
       end
     end
   end

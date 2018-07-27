@@ -38,10 +38,10 @@ module Lapidarist
       regex = / \* (.*) \(newest (\d[\d\.]*\d)[,\s] installed (\d[\d\.]*\d)[\),\s](.*groups \"(.*)\")?/.match line
 
       unless regex.nil?
-        OutdatedGem.new(
+        Gem.new(
           name: regex[1],
           newest_version: regex[2],
-          current_version: regex[3],
+          installed_version: regex[3],
           groups: Array(regex[5]&.split(',')).map(&:strip)
         )
       end

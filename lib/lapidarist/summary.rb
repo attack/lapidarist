@@ -1,7 +1,7 @@
 module Lapidarist
   class Summary
-    def initialize(progress, logger)
-      @progress = progress
+    def initialize(gems, logger)
+      @gems = gems
       @logger = logger
     end
 
@@ -9,27 +9,41 @@ module Lapidarist
       logger.summary ''
       logger.summary 'Summary'
       logger.summary '-'*50
-      logger.summary "updated #{object_count(progress.updated_gems, 'gem', 'gems')} and skipped #{object_count(progress.failed_gems, 'gem', 'gems')} in #{object_count(progress.attempts, 'attempt', 'attempts')}"
-      progress.attempts.each_with_index do |attempt, i|
-        logger.summary "attempt ##{i}: #{object_count(attempt.updated, 'gem', 'gems')} updated, #{object_count(attempt.failed, 'gem', 'gems')} failed"
+      logger.summary "#{object_count(gems.updated, 'gem', 'gems')} updated, #{object_count(gems.failed, 'gem', 'gems')} failed and #{object_count(gems.skipped, 'gem', 'gems')} skipped in #{object_count(gems.attempts, 'attempt', 'attempts')}"
+      gems.grouped_by_attempt.each do |attempt, gems_for_attempt|
+        if attempt
+          logger.summary "attempt ##{attempt}: #{object_count(gems_for_attempt.updated, 'gem', 'gems')} updated, #{object_count(gems_for_attempt.failed, 'gem', 'gems')} failed"
+        end
       end
-      progress.attempts.each do |attempt|
-        attempt.updated.each do |updated_gem|
+      gems.grouped_by_attempt.each do |attempt, gems_for_attempt|
+        gems_for_attempt.updated.each do |updated_gem|
           logger.summary " + updated #{updated_gem.what_changed}"
         end
-        logger.summary " - skipped #{attempt.failed.name}" unless attempt.failed.nil?
+        gems_for_attempt.skipped.each do |skipped_gem|
+          logger.summary " - skipped #{skipped_gem.name} (#{skipped_gem.reason})"
+        end
+        gems_for_attempt.failed.each do |failed_gem|
+          logger.summary " x failed #{failed_gem.name}"
+        end
       end
     end
 
     private
 
-    attr_reader :progress, :logger
+    attr_reader :gems, :logger
 
-    def object_count(objects, singlular, plural)
-      if Array(objects).one?
+    def object_count(objects_or_length, singlular, plural)
+      length =
+        if objects_or_length.respond_to?(:length)
+          objects_or_length.length
+        else
+          objects_or_length
+        end
+
+      if length == 1
         "1 #{singlular}"
       else
-        "#{Array(objects).length} #{plural}"
+        "#{length} #{plural}"
       end
     end
   end

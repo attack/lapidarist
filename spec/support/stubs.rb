@@ -20,7 +20,7 @@ module Lapidarist
         commit_flags: nil,
         quiet: true,
         update_limit: nil,
-        all: true,
+        all: false,
         groups: [],
         policy: :major
       }.merge(args)
@@ -33,11 +33,23 @@ module Lapidarist
     end
 
     def stub_gem(name: '')
+      Lapidarist::Gem.new(
+        name: name || 'foo gem',
+        newest_version: nil,
+        installed_version: nil
+      )
+    end
+
+    def stub_outdated_gem(name: '')
       Lapidarist::OutdatedGem.new(
         name: name || 'foo gem',
         newest_version: nil,
-        current_version: nil
+        installed_version: nil
       )
+    end
+
+    def stub_gems(gems = [])
+      Lapidarist::Gems.new(gems, build_options)
     end
 
     def stub_bundle_command
@@ -46,15 +58,18 @@ module Lapidarist
       bundle
     end
 
-    def stub_outdated(*value)
+    def stub_outdated_gems(*value)
+      gems = double(Lapidarist::Gems).as_null_object
+      allow(gems).to receive(:outdated).and_return(*value)
       outdated = double(Lapidarist::Outdated)
-      allow(outdated).to receive(:run).and_return(*value)
+      allow(outdated).to receive(:run).and_return(gems)
       allow(Lapidarist::Outdated).to receive(:new) { outdated }
-      outdated
+      gems
     end
 
-    def stub_update
-      update = double(Lapidarist::Update, run: nil)
+    def stub_update(*value)
+      update = double(Lapidarist::Update)
+      allow(update).to receive(:run).and_return(*value)
       allow(Lapidarist::Update).to receive(:new) { update }
       update
     end
