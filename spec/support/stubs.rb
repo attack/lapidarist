@@ -41,7 +41,7 @@ module Lapidarist
     end
 
     def stub_outdated_gem(name: '')
-      Lapidarist::OutdatedGem.new(
+      Lapidarist::Gem.new(
         name: name || 'foo gem',
         newest_version: nil,
         installed_version: nil

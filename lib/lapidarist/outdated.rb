@@ -13,10 +13,10 @@ module Lapidarist
         reason = reason_to_skip(gem)
         if reason.nil?
           logger.info(" + #{gem.log_s}")
-          results.push OutdatedGem.from(gem)
+          results.push Gem.from(gem)
         else
           logger.info(" - (#{reason}) #{gem.log_s}")
-          results.push SkippedGem.from(gem, reason: reason)
+          results.push Gem.from(gem, status: :skipped, reason: reason)
         end
       end
 

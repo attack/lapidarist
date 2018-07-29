@@ -13,7 +13,7 @@ module Lapidarist
 
     def outdated
       entries.select do |gem|
-        if (options.all || gem.dependency?) && !gem.updated? && !gem.skip? && !gem.failed?
+        if (options.all || gem.dependency?) && gem.outdated?
           gem
         end
       end

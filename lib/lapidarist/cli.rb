@@ -35,12 +35,12 @@ module Lapidarist
           break
         end
 
-        changed_gems = update.run(gems, attempt)
+        updated_gems = update.run(gems, attempt)
 
         logger.header("Testing gem updates")
         if test.success?
           logger.footer('test passed, nothing left to do')
-          gems = gems.merge(changed_gems)
+          gems = gems.merge(updated_gems)
           status = Status.new(gems, attempt)
           break
         else
@@ -48,14 +48,14 @@ module Lapidarist
         end
 
         failed_gem =
-          if changed_gems.one?
+          if updated_gems.one?
             git.reset_hard('HEAD^')
-            FailedGem.from(changed_gems.first, attempt: attempt)
+            Gem.from(updated_gems.first, attempt: attempt, status: :failed)
           else
             failed_gem_name = git.bisect(sha.last_good, test)
             sha.record_good
-            gems = gems.merge(changed_gems.take(sha.new_commit_count))
-            FailedGem.from(gems.select_by_name(failed_gem_name), attempt: attempt)
+            gems = gems.merge(updated_gems.take(sha.new_commit_count))
+            Gem.from(gems.select_by_name(failed_gem_name), attempt: attempt, status: :failed)
           end
         gems = gems.merge(failed_gem)
       end

@@ -3,10 +3,6 @@ require 'open3'
 
 require_relative 'lapidarist/options'
 require_relative 'lapidarist/gem'
-require_relative 'lapidarist/failed_gem'
-require_relative 'lapidarist/outdated_gem'
-require_relative 'lapidarist/skipped_gem'
-require_relative 'lapidarist/updated_gem'
 require_relative 'lapidarist/gems'
 
 require_relative 'lapidarist/logger'

@@ -12,20 +12,20 @@ module Lapidarist
 
       logger.header('Updating outdated gems')
 
-      take_limit =
+      limit =
         if options.update_limit
           [options.update_limit - gems.updated.length, 0].max
         else
           gems.outdated.length
         end
 
-      changed_gems = gems.outdated.take(take_limit).map do |outdated_gem|
+      updated_gems = gems.outdated.take(limit).map do |outdated_gem|
         update_gem(outdated_gem, attempt)
       end
 
       git.log(before_sha) if options.debug
 
-      changed_gems
+      updated_gems
     end
 
     private
@@ -39,12 +39,12 @@ module Lapidarist
       updated_version = bundle.version(outdated_gem)
 
       if git.clean?
-        skipped_gem = SkippedGem.from(outdated_gem, reason: :nothing_to_update, attempt: attempt)
+        skipped_gem = Gem.from(outdated_gem, attempt: attempt, status: :skipped, reason: :nothing_to_update)
         logger.footer "nothing to update for #{skipped_gem.name}"
 
         skipped_gem
       else
-        updated_gem = UpdatedGem.from(outdated_gem, updated_version: updated_version, attempt: attempt)
+        updated_gem = Gem.from(outdated_gem, attempt: attempt, status: :updated, updated_version: updated_version)
         logger.footer "updated #{updated_gem.name} to #{updated_gem.updated_version}"
 
         git.add('Gemfile', 'Gemfile.lock')

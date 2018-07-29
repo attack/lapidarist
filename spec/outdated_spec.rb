@@ -12,8 +12,8 @@ RSpec.describe Lapidarist::Outdated do
 
       expect(gems.count).to eq 2
       expect(gems.to_a).to eq([
-        Lapidarist::OutdatedGem.from(gem_1),
-        Lapidarist::OutdatedGem.from(gem_2)
+        Lapidarist::Gem.from(gem_1),
+        Lapidarist::Gem.from(gem_2)
       ])
     end
 
@@ -27,8 +27,8 @@ RSpec.describe Lapidarist::Outdated do
 
       expect(gems.count).to eq 2
       expect(gems.to_a).to eq([
-        Lapidarist::OutdatedGem.from(gem_1),
-        Lapidarist::SkippedGem.from(gem_2, reason: :sub_dependency)
+        Lapidarist::Gem.from(gem_1),
+        Lapidarist::Gem.from(gem_2, status: :skipped, reason: :sub_dependency)
       ])
     end
 
@@ -43,8 +43,8 @@ RSpec.describe Lapidarist::Outdated do
 
         expect(gems.count).to eq 2
         expect(gems.to_a).to eq([
-          Lapidarist::OutdatedGem.from(gem_1),
-          Lapidarist::OutdatedGem.from(gem_2)
+          Lapidarist::Gem.from(gem_1),
+          Lapidarist::Gem.from(gem_2)
         ])
       end
     end
@@ -60,8 +60,8 @@ RSpec.describe Lapidarist::Outdated do
 
         expect(gems.count).to eq 2
         expect(gems.to_a).to eq([
-          Lapidarist::OutdatedGem.from(gem_1),
-          Lapidarist::OutdatedGem.from(gem_2)
+          Lapidarist::Gem.from(gem_1),
+          Lapidarist::Gem.from(gem_2)
         ])
       end
 
@@ -73,7 +73,7 @@ RSpec.describe Lapidarist::Outdated do
         gems = Lapidarist::Outdated.new(build_options(groups: ['test'])).run
 
         expect(gems.count).to eq 1
-        expect(gems.to_a).to eq([Lapidarist::SkippedGem.from(gem, reason: :unmatched_group)])
+        expect(gems.to_a).to eq([Lapidarist::Gem.from(gem, status: :skipped, reason: :unmatched_group)])
       end
     end
   end
