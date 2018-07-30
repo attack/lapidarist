@@ -59,6 +59,10 @@ module Lapidarist
           options.update_limit = t.to_i
         end
 
+        opts.on("--one", "Limit the number of gems to be updated to just one.") do |t|
+          options.update_limit = 1
+        end
+
         opts.on("-g GROUP_NAME", "--group GROUP_NAME", "Limit gems to be updated to a specified group(s).") do |g|
           options.groups << g
         end
