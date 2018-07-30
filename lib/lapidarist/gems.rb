@@ -43,13 +43,7 @@ module Lapidarist
     end
 
     def attempts
-      entries.map(&:attempt).compact.max
-    end
-
-    def grouped_by_attempt
-      entries.group_by(&:attempt).each_with_object({}) do |(attempt, gems), result|
-        result[attempt] = Gems.new(gems, options)
-      end
+      entries.map(&:latest_attempt_number).compact.max
     end
 
     private
