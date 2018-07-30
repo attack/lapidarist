@@ -19,7 +19,8 @@ module Lapidarist
       options.log_path = Pathname.new('./tmp/lapidarist.log')
       options.update_limit = nil
       options.groups = []
-      options.version = :major
+      options.version = MAJOR
+      options.recursive = false
 
       opt_parser = OptionParser.new do |opts|
         opts.on("-d", "--directory DIRECTORY", "Directory to run Lapidarist from.") do |d|
@@ -63,15 +64,19 @@ module Lapidarist
         end
 
         opts.on("--major", "Limit updates to major, minor and patch versions (essentially everything).") do |p|
-          options.version = :major
+          options.version = MAJOR
         end
 
         opts.on("--minor", "Limit updates to minor and patch versions.") do |p|
-          options.version = :minor
+          options.version = MINOR
         end
 
         opts.on("--patch", "Limit updates to patch versions.") do |p|
-          options.version = :patch
+          options.version = PATCH
+        end
+
+        opts.on("-r", "--recursive", "Try updating a the major version, minor version then patch version.") do |t|
+          options.recursive = true
         end
       end
 

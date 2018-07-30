@@ -49,7 +49,7 @@ RSpec.describe Lapidarist::BundleCommand do
         shell = stub_shell
 
         gem = stub_gem(name: 'rack')
-        Lapidarist::BundleCommand.new(build_options(version: :major)).update(gem)
+        Lapidarist::BundleCommand.new(build_options).update(gem, level: Lapidarist::MAJOR)
 
         expect(shell).to have_received(:run).with('bundle update rack --strict --major')
       end
@@ -60,7 +60,7 @@ RSpec.describe Lapidarist::BundleCommand do
         shell = stub_shell
 
         gem = stub_gem(name: 'rack')
-        Lapidarist::BundleCommand.new(build_options(version: :minor)).update(gem)
+        Lapidarist::BundleCommand.new(build_options).update(gem, level: Lapidarist::MINOR)
 
         expect(shell).to have_received(:run).with('bundle update rack --strict --minor')
       end
@@ -71,7 +71,7 @@ RSpec.describe Lapidarist::BundleCommand do
         shell = stub_shell
 
         gem = stub_gem(name: 'rack')
-        Lapidarist::BundleCommand.new(build_options(version: :patch)).update(gem)
+        Lapidarist::BundleCommand.new(build_options).update(gem, level: Lapidarist::PATCH)
 
         expect(shell).to have_received(:run).with('bundle update rack --strict --patch')
       end

@@ -14,9 +14,9 @@ module Lapidarist
         gem.attempts.each do |i, data|
           case data[:status]
           when :updated
-            logger.summary " + updated #{gem.what_changed}"
+            logger.summary " + updated #{gem.name} from #{gem.installed_version} to #{data[:version]}"
           when :failed
-            logger.summary " x failed #{gem.name}"
+            logger.summary " x failed #{gem.name} from #{gem.installed_version} to #{data[:version]}"
           when :skipped
             logger.summary " - skipped #{gem.name} (#{data[:reason]})"
           end

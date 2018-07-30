@@ -10,7 +10,7 @@ module Lapidarist
       @attempts = attempts
     end
 
-    def self.from(gem, attempt: 0, status: nil, reason: nil, updated_version: nil)
+    def self.from(gem, attempt: 0, status: nil, reason: nil, updated_version: nil, level: nil)
       attempts = gem.attempts
 
       if status
@@ -18,7 +18,8 @@ module Lapidarist
           attempt => {
             status: status,
             reason: reason,
-            version: updated_version
+            version: updated_version,
+            level: level
           }
         )
       end
@@ -52,8 +53,12 @@ module Lapidarist
       latest_attempt&.fetch(:status, nil)
     end
 
-    def outdated?
-      current_status.nil?
+    def current_level
+      latest_attempt&.fetch(:level, nil)
+    end
+
+    def outdated?(recursive: false)
+      current_status.nil? || (recursive && available_update_levels?)
     end
 
     def failed?
@@ -80,6 +85,18 @@ module Lapidarist
       end
     end
 
+    def available_update_levels?
+      failed? && current_level > PATCH
+    end
+
+    def next_semver_level
+      if current_level
+        LEVELS.detect { |level| level < current_level }
+      else
+        MAJOR
+      end
+    end
+
     def log_s
       [
         "outdated gem: #{name}",
@@ -103,14 +120,14 @@ module Lapidarist
       @latest_attempt_number ||= attempts.keys.last
     end
 
+    def latest_attempt
+      @latest_attempt ||= attempts[latest_attempt_number] || {}
+    end
+
     private
 
     def version_changed?
       updated_version && installed_version != updated_version
-    end
-
-    def latest_attempt
-      @latest_attempt ||= attempts[latest_attempt_number]
     end
 
     def updated_attempt

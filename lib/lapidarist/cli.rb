@@ -49,13 +49,29 @@ module Lapidarist
 
         failed_gem =
           if updated_gems.one?
+            updated_but_failed_gem = updated_gems.first
             git.reset_hard('HEAD^')
-            Gem.from(updated_gems.first, attempt: attempt, status: :failed)
+
+            Gem.from(
+              updated_but_failed_gem,
+              attempt: attempt,
+              status: :failed,
+              updated_version: updated_but_failed_gem.latest_attempt[:version],
+              level: updated_but_failed_gem.latest_attempt[:level]
+            )
           else
             failed_gem_name = git.bisect(sha.last_good, test)
+            updated_but_failed_gem = updated_gems.detect { |g| g.name == failed_gem_name }
             sha.record_good
             gems = gems.merge(updated_gems.take(sha.new_commit_count))
-            Gem.from(gems.select_by_name(failed_gem_name), attempt: attempt, status: :failed)
+
+            Gem.from(
+              updated_but_failed_gem,
+              attempt: attempt,
+              status: :failed,
+              updated_version: updated_but_failed_gem.latest_attempt[:version],
+              level: updated_but_failed_gem.latest_attempt[:level]
+            )
           end
         gems = gems.merge(failed_gem)
       end

@@ -284,6 +284,30 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
       end
     end
 
+    context 'when recursion is enabled' do
+      it 'updates gems by trying each semver level' do
+        within_temp_repo do |env, bundle, git|
+          env.write_file('test.sh', 0755) do |f|
+            f.write "#!/usr/bin/env bash\n"
+            f.write "git log --pretty=format:\"%s\" | grep -q 'Update rake from 11.2.0 to 11.2.2'\n"
+          end
+          git.commit_files('add git bisect test file', 'test.sh')
+
+          bundle.add_gem(:rake, '11.2.0', '>= 11.2.0')
+          bundle.install
+          git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
+
+          expect {
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -r -q")
+          }.to change { git.commit_messages.length }.by(1)
+          expect(exit_status).to be_success
+
+          git_commits = git.commit_messages
+          expect(git_commits).to include 'Update rake from 11.2.0 to 11.2.2'
+        end
+      end
+    end
+
     context 'when there are uncommitted changes' do
       it 'exits without updating anything' do
         within_temp_repo do |env, bundle, git|

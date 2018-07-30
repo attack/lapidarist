@@ -20,8 +20,8 @@ module Lapidarist
       end
     end
 
-    def update(gem)
-      shell.run("bundle update #{gem.name} --strict --#{options.version}")
+    def update(gem, level: MAJOR)
+      shell.run("bundle update #{gem.name} --strict --#{level.to_s}")
     end
 
     def version(gem)

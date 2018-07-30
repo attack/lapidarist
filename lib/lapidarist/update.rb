@@ -35,7 +35,11 @@ module Lapidarist
     def update_gem(outdated_gem, attempt)
       logger.smart_header "Updating #{outdated_gem.name} from #{outdated_gem.installed_version}"
 
-      bundle.update(outdated_gem)
+      available_semver_levels = [options.version]
+      available_semver_levels << outdated_gem.next_semver_level if options.recursive
+      semver_level_restriction = available_semver_levels.compact.min
+
+      bundle.update(outdated_gem, level: semver_level_restriction)
       updated_version = bundle.version(outdated_gem)
 
       if git.clean?
@@ -44,7 +48,7 @@ module Lapidarist
 
         skipped_gem
       else
-        updated_gem = Gem.from(outdated_gem, attempt: attempt, status: :updated, updated_version: updated_version)
+        updated_gem = Gem.from(outdated_gem, attempt: attempt, status: :updated, updated_version: updated_version, level: semver_level_restriction)
         logger.footer "updated #{updated_gem.name} to #{updated_gem.updated_version}"
 
         git.add('Gemfile', 'Gemfile.lock')

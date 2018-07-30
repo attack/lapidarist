@@ -13,7 +13,7 @@ module Lapidarist
 
     def outdated
       entries.select do |gem|
-        if (options.all || gem.dependency?) && gem.outdated?
+        if (options.all || gem.dependency?) && gem.outdated?(recursive: options.recursive)
           gem
         end
       end
@@ -36,10 +36,6 @@ module Lapidarist
         Array(other_gems) + entries.select { |gem| !Array(other_gems).map(&:name).include?(gem.name) },
         options
       )
-    end
-
-    def select_by_name(name)
-      detect { |gem| name == gem.name }
     end
 
     def attempts
