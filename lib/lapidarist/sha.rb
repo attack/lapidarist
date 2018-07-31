@@ -17,15 +17,11 @@ module Lapidarist
     end
 
     def new_commit_count
-      git.count_commits(previous_good, last_good)
+      git.count_commits(last_good, 'HEAD')
     end
 
     private
 
     attr_reader :good_shas, :git, :logger
-
-    def previous_good
-      good_shas[-2]
-    end
   end
 end

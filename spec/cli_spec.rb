@@ -8,7 +8,7 @@ RSpec.describe Lapidarist::CLI do
           stub_outdated_gems(stub_gems([stub_gem]))
           stub_update(stub_gems([stub_gem]))
           stub_test_command(success: true)
-          git = stub_git
+          git = stub_git(count: 1)
 
           Lapidarist::CLI.new(['-q']).run
 
@@ -21,7 +21,7 @@ RSpec.describe Lapidarist::CLI do
           stub_outdated_gems(stub_gems([stub_gem]), stub_gems)
           stub_update(stub_gems([stub_gem]), stub_gems)
           stub_test_command(success: false)
-          git = stub_git
+          git = stub_git(count: 1)
 
           Lapidarist::CLI.new(['-q']).run
 
@@ -32,7 +32,7 @@ RSpec.describe Lapidarist::CLI do
           stub_outdated_gems(stub_gems([stub_gem]), stub_gems)
           stub_update(stub_gems([stub_gem]), stub_gems)
           stub_test_command(success: false)
-          git = stub_git
+          git = stub_git(count: 1)
 
           Lapidarist::CLI.new(['-q']).run
 
@@ -47,7 +47,7 @@ RSpec.describe Lapidarist::CLI do
           stub_outdated_gems(stub_gems([stub_gem, stub_gem]), stub_gems)
           stub_update(stub_gems([stub_gem, stub_gem]))
           stub_test_command(success: false)
-          git = stub_git
+          git = stub_git(count: 2)
 
           Lapidarist::CLI.new(['-q']).run
 

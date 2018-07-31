@@ -147,6 +147,37 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
       end
     end
 
+    context 'when updating all outdated gems result in no changes' do
+      it 'skips running the tests and goes to the next loop' do
+        within_temp_repo do |env, bundle, git|
+          env.write_file('test.sh', 0755) do |f|
+            f.write "#!/usr/bin/env bash\n"
+            f.write "exit 0\n"
+          end
+          git.commit_files('add git bisect test file', 'test.sh')
+
+          bundle.add_gem(
+            :addressable, '2.5.0', '<= 2.5.2', nil,
+            ['public_suffix', '2.0.4', '2.0.4']
+          )
+          bundle.add_gem(
+            :launchy, '2.4.2', '<= 2.4.3', nil,
+            ['addressable', nil, '2.5.0']
+          )
+          bundle.install
+          git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
+
+          expect {
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh --one -q")
+          }.to change { git.commit_messages.length }.by(1)
+          expect(exit_status).to be_success
+
+          git_commits = git.commit_messages
+          expect(git_commits).to include 'Update launchy from 2.4.2 to 2.4.3'
+        end
+      end
+    end
+
     context 'when all gem updates fail the test' do
       it 'does not add any commits' do
         within_temp_repo do |env, bundle, git|
