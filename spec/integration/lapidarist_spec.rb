@@ -475,6 +475,9 @@ class FakeBundle
     unless stderr.empty?
       puts stderr
     end
+    unless stdout.empty?
+      puts stdout
+    end
     ExitStatus.instance.status = status
     [stdout, stderr, status]
   end
