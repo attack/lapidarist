@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors     = ["Mark Gangl"]
   spec.email       = ["mark@attackcorp.com"]
 
-  spec.summary     = %q{Automatically update gem dependencies.}
-  spec.description = %q{Automatically update gem dependencies.}
+  spec.summary     = %q{Automatically update ruby gem dependencies.}
+  spec.description = %q{Sit back, relax, and allow Lapidarist to do the heavy lifiting and update your ruby gem dependencies for you.}
   spec.homepage    = "https://github.com/attack/lapidarist"
   spec.license     = "MIT"
 
