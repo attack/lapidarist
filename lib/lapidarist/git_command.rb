@@ -2,7 +2,6 @@ module Lapidarist
   class GitCommand
     def initialize
       @shell = Shell.new
-      @logger = Logger.new
     end
 
     def head
@@ -18,7 +17,7 @@ module Lapidarist
     end
 
     def bisect(start_sha, test)
-      logger.header('Starting bisect')
+      Lapidarist.logger.header('Starting bisect')
       bisect_start(start_sha)
       bisect_run(start_sha, test)
     end
@@ -41,7 +40,7 @@ module Lapidarist
 
     private
 
-    attr_reader :shell, :logger
+    attr_reader :shell
 
     def bisect_start(sha)
       shell.run('git bisect start')
@@ -59,7 +58,7 @@ module Lapidarist
           if bisect_step.failure?
             failing_sha = bisect_step.failing_sha
             failing_gem_name = bisect_step.failing_gem(failing_sha)
-            logger.info("... found failing gem update: #{failing_gem_name}")
+            Lapidarist.logger.info("... found failing gem update: #{failing_gem_name}")
           end
 
           if bisect_step.success?
@@ -69,10 +68,10 @@ module Lapidarist
         end
 
         unless failing_gem_name
-          logger.info("... last commit was failing commit")
+          Lapidarist.logger.info("... last commit was failing commit")
         end
 
-        logger.footer("bisect done")
+        Lapidarist.logger.footer("bisect done")
       end
 
       if failing_gem_name && Lapidarist.config.debug

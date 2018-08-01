@@ -1,9 +1,5 @@
 module Lapidarist
   class Shell
-    def initialize
-      @logger = Logger.new
-    end
-
     def run(*commands, label: nil, &block)
       if commands.one?
         run_single_command(commands.first, label, &block)
@@ -14,10 +10,8 @@ module Lapidarist
 
     private
 
-    attr_reader :logger
-
     def run_single_command(command, label)
-      logger.info "COMMAND > `#{command}`", 1
+      Lapidarist.logger.info "COMMAND > `#{command}`", 1
 
       if block_given?
         Open3.popen2e(command, chdir: Lapidarist.config.directory) do |_std_in, std_out_err|
@@ -28,13 +22,13 @@ module Lapidarist
 
         status = Open3.popen2e(command, chdir: Lapidarist.config.directory) do |_std_in, std_out_err, wait_thr|
           while line = std_out_err.gets
-            logger.std_out_err(line, label || command)
+            Lapidarist.logger.std_out_err(line, label || command)
             out_err << line
           end
           wait_thr.value
         end
 
-        logger.info "STATUS > #{status}", 2
+        Lapidarist.logger.info "STATUS > #{status}", 2
 
         [out_err.join("\n"), status]
       end

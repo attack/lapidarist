@@ -3,12 +3,11 @@ module Lapidarist
     def initialize
       @good_shas = []
       @git = GitCommand.new
-      @logger = Logger.new
     end
 
     def record_good
       good_sha = git.head
-      logger.debug("good sha: #{good_sha}")
+      Lapidarist.logger.debug("good sha: #{good_sha}")
       @good_shas << good_sha
     end
 
@@ -22,6 +21,6 @@ module Lapidarist
 
     private
 
-    attr_reader :good_shas, :git, :logger
+    attr_reader :good_shas, :git
   end
 end

@@ -25,5 +25,9 @@ module Lapidarist
     def config
       @config ||= Lapidarist::Configuration.new
     end
+
+    def logger
+      @logger ||= Lapidarist::Logger.new.tap { |l| l.setup }
+    end
   end
 end

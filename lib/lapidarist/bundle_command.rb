@@ -2,7 +2,6 @@ module Lapidarist
   class BundleCommand
     def initialize
       @shell = Shell.new
-      @logger = Logger.new
     end
 
     def outdated
@@ -11,7 +10,7 @@ module Lapidarist
       Enumerator.new do |y|
         shell.run('bundle outdated --strict') do |std_out_err|
           while line = std_out_err.gets
-            logger.std_out_err(line, 'bundle outdated')
+            Lapidarist.logger.std_out_err(line, 'bundle outdated')
             gem = parse_gem_from(line)
             y.yield(gem) if gem
           end
@@ -31,7 +30,7 @@ module Lapidarist
 
     private
 
-    attr_reader :shell, :logger
+    attr_reader :shell
 
     def parse_gem_from(line)
       regex = / \* (.*) \(newest (\d[\d\.]*\d)[,\s] installed (\d[\d\.]*\d)[\),\s](.*groups \"(.*)\")?/.match line

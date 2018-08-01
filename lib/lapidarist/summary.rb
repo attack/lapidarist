@@ -1,24 +1,23 @@
 module Lapidarist
   class Summary
-    def initialize(gems, logger)
+    def initialize(gems)
       @gems = gems
-      @logger = logger
     end
 
     def display
-      logger.summary ''
-      logger.summary 'Summary'
-      logger.summary '-'*50
-      logger.summary "#{object_count(gems.updated, 'gem', 'gems')} updated, #{object_count(gems.failed, 'gem', 'gems')} failed and #{object_count(gems.skipped, 'gem', 'gems')} skipped in #{object_count(gems.attempts, 'attempt', 'attempts')}"
+      Lapidarist.logger.summary ''
+      Lapidarist.logger.summary 'Summary'
+      Lapidarist.logger.summary '-'*50
+      Lapidarist.logger.summary "#{object_count(gems.updated, 'gem', 'gems')} updated, #{object_count(gems.failed, 'gem', 'gems')} failed and #{object_count(gems.skipped, 'gem', 'gems')} skipped in #{object_count(gems.attempts, 'attempt', 'attempts')}"
       gems.each do |gem|
         gem.attempts.each do |i, data|
           case data[:status]
           when :updated
-            logger.summary " + updated #{gem.name} from #{gem.installed_version} to #{data[:version]}"
+            Lapidarist.logger.summary " + updated #{gem.name} from #{gem.installed_version} to #{data[:version]}"
           when :failed
-            logger.summary " x failed #{gem.name} from #{gem.installed_version} to #{data[:version]}"
+            Lapidarist.logger.summary " x failed #{gem.name} from #{gem.installed_version} to #{data[:version]}"
           when :skipped
-            logger.summary " - skipped #{gem.name} (#{data[:reason]})"
+            Lapidarist.logger.summary " - skipped #{gem.name} (#{data[:reason]})"
           end
         end
       end
@@ -26,7 +25,7 @@ module Lapidarist
 
     private
 
-    attr_reader :gems, :logger
+    attr_reader :gems
 
     def object_count(objects_or_length, singlular, plural)
       length =

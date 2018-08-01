@@ -7,19 +7,16 @@ module Lapidarist
       @outdated = Outdated.new
       @update = Update.new
       @sha = Sha.new
-
-      @logger = Logger.new
-      @logger.setup
     end
 
     def run
       Options.new(args).parse
-      logger.header('Starting lapidarist')
-      logger.debug("directory: #{Lapidarist.config.directory}", :options)
-      logger.debug("test_script: #{Lapidarist.config.test_script}", :options)
+      Lapidarist.logger.header('Starting lapidarist')
+      Lapidarist.logger.debug("directory: #{Lapidarist.config.directory}", :options)
+      Lapidarist.logger.debug("test_script: #{Lapidarist.config.test_script}", :options)
 
       unless git.clean?
-        logger.footer('stopping, there are uncommitted changes')
+        Lapidarist.logger.footer('stopping, there are uncommitted changes')
         return 1
       end
 
@@ -28,10 +25,10 @@ module Lapidarist
 
       status = nil
       1.step do |attempt|
-        logger.header("Attempt ##{attempt}")
+        Lapidarist.logger.header("Attempt ##{attempt}")
 
         if gems.outdated.none?
-          logger.footer('stopping, there are no applicable outdated gems')
+          Lapidarist.logger.footer('stopping, there are no applicable outdated gems')
           status = Status.new(gems, attempt)
           break
         end
@@ -39,19 +36,19 @@ module Lapidarist
         updated_gems = update.run(gems, attempt)
 
         if sha.new_commit_count.zero?
-          logger.footer('nothing updated, trying again')
+          Lapidarist.logger.footer('nothing updated, trying again')
           gems = gems.merge(updated_gems)
           next
         end
 
-        logger.header("Testing gem updates")
+        Lapidarist.logger.header("Testing gem updates")
         if test.success?
-          logger.footer('test passed, nothing left to do')
+          Lapidarist.logger.footer('test passed, nothing left to do')
           gems = gems.merge(updated_gems)
           status = Status.new(gems, attempt)
           break
         else
-          logger.footer('test failed, investigating failure')
+          Lapidarist.logger.footer('test failed, investigating failure')
         end
 
         failed_gem =
@@ -83,12 +80,12 @@ module Lapidarist
         gems = gems.merge(failed_gem)
       end
 
-      Summary.new(gems, logger).display
+      Summary.new(gems).display
       return status.to_i
     end
 
     private
 
-    attr_reader :args, :git, :test, :outdated, :update, :sha, :logger
+    attr_reader :args, :git, :test, :outdated, :update, :sha
   end
 end
