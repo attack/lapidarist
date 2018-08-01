@@ -1,8 +1,9 @@
 # Lapidarist
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/lapidarist`. To experiment with that code, run `bin/console` for an interactive prompt.
+Take the manual work out of updaeting your ruby gems, and let Lapidarist do the work.
 
-TODO: Delete this and the text above, and describe your gem
+You can run it from the command line yourself to update the gems of your project, or
+automate it to run and update for you.
 
 ## Installation
 
@@ -20,9 +21,18 @@ Or install it yourself as:
 
     $ gem install lapidarist
 
+Lapidarist depends on `bundler` and `git`.
+
 ## Usage
 
-TODO: Write usage instructions here
+```sh
+lapidarist -d . -t 'rspec spec' --all
+```
+
+To see all the options available
+```sh
+lapidarist -h
+```
 
 ## Development
 
