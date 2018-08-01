@@ -1,6 +1,7 @@
 require 'lapidarist/version'
 require 'open3'
 
+require_relative 'lapidarist/configuration'
 require_relative 'lapidarist/options'
 require_relative 'lapidarist/level'
 require_relative 'lapidarist/gem'
@@ -20,4 +21,9 @@ require_relative 'lapidarist/status'
 require_relative 'lapidarist/cli'
 
 module Lapidarist
+  class << self
+    def config
+      @config ||= Lapidarist::Configuration.new
+    end
+  end
 end

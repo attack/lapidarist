@@ -1,21 +1,22 @@
 module Lapidarist
   class CLI
     def initialize(args)
-      @options = Options.new(args).parse
-      @git = GitCommand.new(options)
-      @test = TestCommand.new(options)
-      @outdated = Outdated.new(options)
-      @update = Update.new(options)
-      @sha = Sha.new(options)
+      @args = args
+      @git = GitCommand.new
+      @test = TestCommand.new
+      @outdated = Outdated.new
+      @update = Update.new
+      @sha = Sha.new
 
-      @logger = Logger.new(options)
+      @logger = Logger.new
       @logger.setup
     end
 
     def run
+      Options.new(args).parse
       logger.header('Starting lapidarist')
-      logger.debug("directory: #{options.directory}", :options)
-      logger.debug("test_script: #{options.test_script}", :options)
+      logger.debug("directory: #{Lapidarist.config.directory}", :options)
+      logger.debug("test_script: #{Lapidarist.config.test_script}", :options)
 
       unless git.clean?
         logger.footer('stopping, there are uncommitted changes')
@@ -88,6 +89,6 @@ module Lapidarist
 
     private
 
-    attr_reader :options, :git, :test, :outdated, :update, :sha, :logger
+    attr_reader :args, :git, :test, :outdated, :update, :sha, :logger
   end
 end

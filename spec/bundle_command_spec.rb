@@ -5,7 +5,7 @@ RSpec.describe Lapidarist::BundleCommand do
     it 'calls bundle outdated' do
       shell = stub_shell
 
-      Lapidarist::BundleCommand.new(build_options).outdated.to_a
+      Lapidarist::BundleCommand.new.outdated.to_a
 
       expect(shell).to have_received(:run).with('bundle outdated --strict')
     end
@@ -25,7 +25,7 @@ RSpec.describe Lapidarist::BundleCommand do
       )
       stub_shell { std_out }
 
-      outdated_gems = Lapidarist::BundleCommand.new(build_options).outdated.to_a
+      outdated_gems = Lapidarist::BundleCommand.new.outdated.to_a
 
       expect(outdated_gems.length).to eq 3
       expect(outdated_gems[0]).to eq Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: %w(default))
@@ -39,7 +39,7 @@ RSpec.describe Lapidarist::BundleCommand do
       shell = stub_shell
 
       gem = stub_gem(name: 'rack')
-      Lapidarist::BundleCommand.new(build_options).update(gem)
+      Lapidarist::BundleCommand.new.update(gem)
 
       expect(shell).to have_received(:run).with('bundle update rack --strict --major')
     end
@@ -49,7 +49,7 @@ RSpec.describe Lapidarist::BundleCommand do
         shell = stub_shell
 
         gem = stub_gem(name: 'rack')
-        Lapidarist::BundleCommand.new(build_options).update(gem, level: Lapidarist::MAJOR)
+        Lapidarist::BundleCommand.new.update(gem, level: Lapidarist::MAJOR)
 
         expect(shell).to have_received(:run).with('bundle update rack --strict --major')
       end
@@ -60,7 +60,7 @@ RSpec.describe Lapidarist::BundleCommand do
         shell = stub_shell
 
         gem = stub_gem(name: 'rack')
-        Lapidarist::BundleCommand.new(build_options).update(gem, level: Lapidarist::MINOR)
+        Lapidarist::BundleCommand.new.update(gem, level: Lapidarist::MINOR)
 
         expect(shell).to have_received(:run).with('bundle update rack --strict --minor')
       end
@@ -71,7 +71,7 @@ RSpec.describe Lapidarist::BundleCommand do
         shell = stub_shell
 
         gem = stub_gem(name: 'rack')
-        Lapidarist::BundleCommand.new(build_options).update(gem, level: Lapidarist::PATCH)
+        Lapidarist::BundleCommand.new.update(gem, level: Lapidarist::PATCH)
 
         expect(shell).to have_received(:run).with('bundle update rack --strict --patch')
       end
@@ -83,7 +83,7 @@ RSpec.describe Lapidarist::BundleCommand do
       shell = stub_shell('')
 
       gem = stub_gem(name: 'rack')
-      Lapidarist::BundleCommand.new(build_options).version(gem)
+      Lapidarist::BundleCommand.new.version(gem)
 
       expect(shell).to have_received(:run).with('bundle list', "grep \" rack \"")
     end
@@ -92,7 +92,7 @@ RSpec.describe Lapidarist::BundleCommand do
       it 'returns the version' do
         stub_shell('  * bundler (1.16.1)')
 
-        bundle = Lapidarist::BundleCommand.new(build_options)
+        bundle = Lapidarist::BundleCommand.new
         gem = stub_gem(name: 'bundler')
 
         expect(bundle.version(gem)).to eq '1.16.1'
@@ -103,7 +103,7 @@ RSpec.describe Lapidarist::BundleCommand do
       it 'returns nil' do
         stub_shell('')
 
-        bundle = Lapidarist::BundleCommand.new(build_options)
+        bundle = Lapidarist::BundleCommand.new
         gem = stub_gem(name: 'rake')
 
         expect(bundle.version(gem)).to be_nil

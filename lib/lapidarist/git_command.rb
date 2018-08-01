@@ -1,9 +1,8 @@
 module Lapidarist
   class GitCommand
-    def initialize(options)
-      @options = options
-      @shell = Shell.new(options)
-      @logger = Logger.new(options)
+    def initialize
+      @shell = Shell.new
+      @logger = Logger.new
     end
 
     def head
@@ -15,7 +14,7 @@ module Lapidarist
     end
 
     def commit(message)
-      shell.run("git commit -m '#{message}' #{options.commit_flags}".strip, label: 'git commit')
+      shell.run("git commit -m '#{message}' #{Lapidarist.config.commit_flags}".strip, label: 'git commit')
     end
 
     def bisect(start_sha, test)
@@ -42,7 +41,7 @@ module Lapidarist
 
     private
 
-    attr_reader :shell, :options, :logger
+    attr_reader :shell, :logger
 
     def bisect_start(sha)
       shell.run('git bisect start')
@@ -76,7 +75,7 @@ module Lapidarist
         logger.footer("bisect done")
       end
 
-      if failing_gem_name && options.debug
+      if failing_gem_name && Lapidarist.config.debug
         log(start_sha)
       end
 

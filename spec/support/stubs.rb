@@ -11,7 +11,7 @@ module Lapidarist
       shell
     end
 
-    def build_options(args = {})
+    def stub_options(args = {})
       stub_args = {
         directory: Pathname.new('/foo'),
         verbosity: 0,
@@ -29,7 +29,7 @@ module Lapidarist
         stub_args[:directory] = Pathname.new(stub_args[:directory])
       end
 
-      double(Lapidarist::Options, stub_args)
+      allow(Lapidarist).to receive(:config) { OpenStruct.new(stub_args) }
     end
 
     def stub_gem(name: '')
@@ -49,7 +49,7 @@ module Lapidarist
     end
 
     def stub_gems(gems = [])
-      Lapidarist::Gems.new(gems, build_options)
+      Lapidarist::Gems.new(gems)
     end
 
     def stub_bundle_command

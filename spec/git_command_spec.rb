@@ -5,7 +5,7 @@ RSpec.describe Lapidarist::GitCommand do
     it 'calls git add with the provided files' do
       shell = stub_shell
 
-      Lapidarist::GitCommand.new(build_options).add('Gemfile', 'Gemfile.lock')
+      Lapidarist::GitCommand.new.add('Gemfile', 'Gemfile.lock')
 
       expect(shell).to have_received(:run).with('git add Gemfile Gemfile.lock')
     end
@@ -14,9 +14,9 @@ RSpec.describe Lapidarist::GitCommand do
   describe '#commit' do
     it 'calls git commit with the provided message' do
       shell = stub_shell
-      options = build_options(commit_flags: nil)
+      stub_options(commit_flags: nil)
 
-      Lapidarist::GitCommand.new(options).commit('commit message')
+      Lapidarist::GitCommand.new.commit('commit message')
 
       expect(shell).to have_received(:run).with('git commit -m \'commit message\'', label: 'git commit')
     end
@@ -24,9 +24,9 @@ RSpec.describe Lapidarist::GitCommand do
     context 'when commit flags are provided' do
       it 'calls git commit with the provided flags' do
         shell = stub_shell
-        options = build_options(commit_flags: '--no-verify')
+        stub_options(commit_flags: '--no-verify')
 
-        Lapidarist::GitCommand.new(options).commit('commit message')
+        Lapidarist::GitCommand.new.commit('commit message')
 
         expect(shell).to have_received(:run).with('git commit -m \'commit message\' --no-verify', label: 'git commit')
       end

@@ -2,9 +2,8 @@ module Lapidarist
   class Gems
     include Enumerable
 
-    def initialize(gems, options)
+    def initialize(gems)
       @gems = gems
-      @options = options
     end
 
     def each(&block)
@@ -13,7 +12,7 @@ module Lapidarist
 
     def outdated
       entries.select do |gem|
-        if (options.all || gem.dependency?) && gem.outdated?(recursive: options.recursive)
+        if (Lapidarist.config.all || gem.dependency?) && gem.outdated?(recursive: Lapidarist.config.recursive)
           gem
         end
       end
@@ -33,8 +32,7 @@ module Lapidarist
 
     def merge(other_gems)
       Gems.new(
-        Array(other_gems) + entries.select { |gem| !Array(other_gems).map(&:name).include?(gem.name) },
-        options
+        Array(other_gems) + entries.select { |gem| !Array(other_gems).map(&:name).include?(gem.name) }
       )
     end
 
@@ -44,6 +42,6 @@ module Lapidarist
 
     private
 
-    attr_reader :gems, :options
+    attr_reader :gems
   end
 end

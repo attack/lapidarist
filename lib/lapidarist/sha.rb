@@ -1,9 +1,9 @@
 module Lapidarist
   class Sha
-    def initialize(options)
+    def initialize
       @good_shas = []
-      @git = GitCommand.new(options)
-      @logger = Logger.new(options)
+      @git = GitCommand.new
+      @logger = Logger.new
     end
 
     def record_good

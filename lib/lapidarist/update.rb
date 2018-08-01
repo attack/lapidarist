@@ -1,20 +1,19 @@
 module Lapidarist
   class Update
-    def initialize(options)
-      @options = options
-      @bundle = BundleCommand.new(options)
-      @git = GitCommand.new(options)
-      @logger = Logger.new(options)
+    def initialize
+      @bundle = BundleCommand.new
+      @git = GitCommand.new
+      @logger = Logger.new
     end
 
     def run(gems, attempt)
-      before_sha = git.head if options.debug
+      before_sha = git.head if Lapidarist.config.debug
 
       logger.header('Updating outdated gems')
 
       limit =
-        if options.update_limit
-          [options.update_limit - gems.updated.length, 0].max
+        if Lapidarist.config.update_limit
+          [Lapidarist.config.update_limit - gems.updated.length, 0].max
         else
           gems.outdated.length
         end
@@ -23,20 +22,20 @@ module Lapidarist
         update_gem(outdated_gem, attempt)
       end
 
-      git.log(before_sha) if options.debug
+      git.log(before_sha) if Lapidarist.config.debug
 
       updated_gems
     end
 
     private
 
-    attr_reader :options, :outdated_gems, :bundle, :git, :logger
+    attr_reader :outdated_gems, :bundle, :git, :logger
 
     def update_gem(outdated_gem, attempt)
       logger.smart_header "Updating #{outdated_gem.name} from #{outdated_gem.installed_version}"
 
-      available_semver_levels = [options.version]
-      available_semver_levels << outdated_gem.next_semver_level if options.recursive
+      available_semver_levels = [Lapidarist.config.version]
+      available_semver_levels << outdated_gem.next_semver_level if Lapidarist.config.recursive
       semver_level_restriction = available_semver_levels.compact.min
 
       bundle.update(outdated_gem, level: semver_level_restriction)

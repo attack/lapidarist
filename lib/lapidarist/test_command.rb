@@ -1,8 +1,7 @@
 module Lapidarist
   class TestCommand
-    def initialize(options)
-      @options = options
-      @shell = Shell.new(options)
+    def initialize
+      @shell = Shell.new
     end
 
     def run
@@ -14,11 +13,11 @@ module Lapidarist
     end
 
     def to_s
-      options.test_script
+      Lapidarist.config.test_script
     end
 
     private
 
-    attr_reader :options, :shell
+    attr_reader :shell
   end
 end

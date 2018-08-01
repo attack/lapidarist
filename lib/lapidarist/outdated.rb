@@ -1,9 +1,8 @@
 module Lapidarist
   class Outdated
-    def initialize(options)
-      @options = options
-      @bundle = BundleCommand.new(options)
-      @logger = Logger.new(options)
+    def initialize
+      @bundle = BundleCommand.new
+      @logger = Logger.new
     end
 
     def run
@@ -20,17 +19,17 @@ module Lapidarist
         end
       end
 
-      Gems.new(gems, options)
+      Gems.new(gems)
     end
 
     private
 
-    attr_reader :bundle, :options, :logger
+    attr_reader :bundle, :logger
 
     def reason_to_skip(gem)
-      if !options.all && !gem.dependency?
+      if !Lapidarist.config.all && !gem.dependency?
         :sub_dependency
-      elsif options.groups.any? && (options.groups & gem.groups).none?
+      elsif Lapidarist.config.groups.any? && (Lapidarist.config.groups & gem.groups).none?
         :unmatched_group
       end
     end
