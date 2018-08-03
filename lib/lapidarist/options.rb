@@ -71,6 +71,10 @@ module Lapidarist
         opts.on("-o", "--ordered", "Do not randomize outdated list and keep alphabetical ordering.") do |t|
           Lapidarist.config.random = false
         end
+
+        opts.on("--seed SEED", "When randomizing the outdated order, use the provided seed.") do |s|
+          Lapidarist.config.seed = s.to_i
+        end
       end
 
       opt_parser.parse!(args)

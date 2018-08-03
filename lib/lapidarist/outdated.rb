@@ -40,7 +40,7 @@ module Lapidarist
     end
 
     def seed
-      seed = Random.new_seed
+      seed = Lapidarist.config.seed || rand(100_000)
       Lapidarist.logger.info("seed: #{seed}", 1)
       seed
     end

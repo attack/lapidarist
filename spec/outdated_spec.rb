@@ -99,6 +99,21 @@ RSpec.describe Lapidarist::Outdated do
         first_gem_to_be_updated = [gems_1.first, gems_2.first, gems_3.first, gems_4.first, gems_5.first].map(&:name).uniq
         expect(first_gem_to_be_updated.count).to eq 2
       end
+
+      it 'returns an outdated gem for each gem in random order using the provided seed' do
+        bundle = stub_bundle_command
+        gem_1 = Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: ['default'])
+        gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0', groups: ['default'])
+        allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
+
+        stub_options(random: true, seed: 1)
+        gems_1 = Lapidarist::Outdated.new.run
+
+        stub_options(random: true, seed: 2)
+        gems_2 = Lapidarist::Outdated.new.run
+
+        expect(gems_1.map(&:name)).not_to eq gems_2.map(&:name)
+      end
     end
   end
 end

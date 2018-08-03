@@ -16,7 +16,8 @@ module Lapidarist
         groups: [],
         version: MAJOR,
         recursive: false,
-        random: true
+        random: true,
+        seed: nil
       )
     end
   end
