@@ -9,6 +9,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when at least one gem update fails the test' do
       it 'updates each outdated listed gem dependency that passes the test in separate commits' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "! git log --pretty=format:\"%s\" | grep -q 'Update rake'\n"
@@ -45,6 +48,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
 
       it 'updates each outdated gem that passes the test in separate commits' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -83,6 +89,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when all gem updates pass the test' do
       it 'updates all outdated listed gem dependencies in separate commits' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -118,6 +127,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when one gem locks the version of another outdated gem' do
       it 'can still update the dependencies of the locked outdated gem' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -150,6 +162,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when updating all outdated gems result in no changes' do
       it 'skips running the tests and goes to the next loop' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -181,6 +196,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when all gem updates fail the test' do
       it 'does not add any commits' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 1\n"
@@ -202,6 +220,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when there are no gems to update' do
       it 'does not add any commits' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -223,6 +244,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when the number of gems to update is specified' do
       it 'updates only the specified number of gems' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "! git log --pretty=format:\"%s\" | grep -q 'Update i18n'\n"
@@ -260,6 +284,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when the bundler update version is specified' do
       it 'updates only gems respecting the version constraint' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -289,6 +316,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when the bundler group is specified' do
       it 'updates only the specified gems in the group' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -318,6 +348,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when recursion is enabled' do
       it 'updates gems by trying each semver level' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "git log --pretty=format:\"%s\" | grep -q 'Update rake from 11.2.0 to 11.2.2'\n"
@@ -342,6 +375,9 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
     context 'when there are uncommitted changes' do
       it 'exits without updating anything' do
         within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
           env.write_file('test.sh', 0755) do |f|
             f.write "#!/usr/bin/env bash\n"
             f.write "exit 0\n"
@@ -480,6 +516,10 @@ class FakeBundle
     end
     ExitStatus.instance.status = status
     [stdout, stderr, status]
+  end
+
+  def add_lapidarist
+    env.run('bundle add lapidarist')
   end
 
   private
