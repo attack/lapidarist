@@ -67,6 +67,10 @@ module Lapidarist
         opts.on("-r", "--recursive", "Try updating a the major version, minor version then patch version.") do |t|
           Lapidarist.config.recursive = true
         end
+
+        opts.on("-o", "--ordered", "Do not randomize outdated list and keep alphabetical ordering.") do |t|
+          Lapidarist.config.random = false
+        end
       end
 
       opt_parser.parse!(args)

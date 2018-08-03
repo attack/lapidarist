@@ -1,16 +1,17 @@
 module Lapidarist
   class Gem
-    attr_reader :name, :newest_version, :installed_version, :attempts
+    attr_reader :name, :position, :newest_version, :installed_version, :attempts
 
-    def initialize(name:, newest_version:, installed_version:, groups: [], attempts: {})
+    def initialize(name:, position: nil, newest_version:, installed_version:, groups: [], attempts: {})
       @name = name
+      @position = position
       @newest_version = newest_version
       @installed_version = installed_version
       @groups = groups
       @attempts = attempts
     end
 
-    def self.from(gem, attempt: 0, status: nil, reason: nil, updated_version: nil, level: nil)
+    def self.from(gem, position: nil, attempt: 0, status: nil, reason: nil, updated_version: nil, level: nil)
       attempts = gem.attempts
 
       if status
@@ -26,6 +27,7 @@ module Lapidarist
 
       new(
         name: gem.name,
+        position: position || gem.position,
         newest_version: gem.newest_version,
         installed_version: gem.installed_version,
         groups: gem.groups,

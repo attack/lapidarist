@@ -67,7 +67,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh --all -q")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh --all -q --ordered")
           }.to change { git.commit_messages.length }.by(4)
           expect(exit_status).to be_success
 
@@ -247,7 +247,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
 
           expect {
-            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q -n 2")
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q -n 2 --ordered")
           }.to change { git.commit_messages.length }.by(2)
 
           git_commits = git.commit_messages

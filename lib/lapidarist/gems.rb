@@ -7,7 +7,7 @@ module Lapidarist
     end
 
     def each(&block)
-      gems.sort_by(&:name).each(&block)
+      gems.sort_by(&:position).each(&block)
     end
 
     def outdated

@@ -15,7 +15,8 @@ module Lapidarist
         update_limit: nil,
         groups: [],
         version: MAJOR,
-        recursive: false
+        recursive: false,
+        random: true
       )
     end
   end
