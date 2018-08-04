@@ -1,5 +1,7 @@
 # Lapidarist
 
+[![CircleCI](https://circleci.com/gh/attack/lapidarist.svg?style=svg)](https://circleci.com/gh/attack/lapidarist)
+
 Take the manual work out of updaeting your ruby gems, and let Lapidarist do the work.
 
 You can run it from the command line yourself to update the gems of your project, or
