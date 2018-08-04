@@ -24,7 +24,9 @@ module Lapidarist
       gems = outdated.run
 
       status = nil
-      1.step do |attempt|
+      attempt = 0
+      loop do
+        attempt += 1
         Lapidarist.logger.header("Attempt ##{attempt}")
 
         if gems.outdated.none?

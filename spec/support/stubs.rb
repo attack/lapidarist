@@ -50,6 +50,11 @@ module Lapidarist
       )
     end
 
+    def stub_skipped_gem(name: '')
+      outdated_gem = stub_outdated_gem(name: name)
+      Gem.from(outdated_gem, status: :skipped, reason: :nothing_to_update)
+    end
+
     def stub_gems(gems = [])
       Lapidarist::Gems.new(gems)
     end
@@ -77,7 +82,8 @@ module Lapidarist
     end
 
     def stub_git(count: 0)
-      git = double(Lapidarist::GitCommand, bisect: "", head: nil, reset_hard: nil, clean?: true, count_commits: count)
+      git = double(Lapidarist::GitCommand, bisect: "", head: nil, reset_hard: nil, clean?: true)
+      allow(git).to receive(:count_commits).and_return(*count)
       allow(Lapidarist::GitCommand).to receive(:new) { git }
       git
     end

@@ -56,4 +56,19 @@ RSpec.describe Lapidarist::CLI do
       end
     end
   end
+
+  context 'when all the gems to be updated result in no changes' do
+    it 'skips to the next loop without running specs' do
+      stub_outdated_gems(stub_gems([stub_gem(name: 'rake')]), stub_gems)
+      stub_update(stub_gems([stub_skipped_gem(name: 'rake')]))
+      stub_git(count: 0)
+      test_command = stub_test_command(success: true)
+
+      cli = Lapidarist::CLI.new(['-q'])
+      allow(cli).to receive(:loop).and_yield
+      cli.run
+
+      expect(test_command).not_to have_received(:success?)
+    end
+  end
 end
