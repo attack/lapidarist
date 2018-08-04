@@ -31,7 +31,7 @@ module Lapidarist
     end
 
     def clean?
-      shell.run('[ -z "$(git status --porcelain)" ]')[1] == 0
+      shell.run('[ -z "$(git status --porcelain=v1 -uno)" ]')[1] == 0
     end
 
     def count_commits(start_sha, end_sha)

@@ -194,8 +194,8 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
             ['rack', '2.0.4', '> 1, < 3']
           )
           bundle.add_gem(
-            :addressable, '2.5.0', '<= 2.5.2', nil,
-            ['public_suffix', '3.0.1', '>= 2.0.2, < 4.0']
+            :addressable, '2.5.1', '<= 2.5.2', nil,
+            ['public_suffix', '2.0.5', '>= 2.0.2, ~> 2.0']
           )
           bundle.add_gem(:rake, '12.3.0', '<= 12.3.1')
           bundle.install
@@ -206,7 +206,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           }.to change { git.commit_messages.length }.by(2)
 
           git_commits = git.commit_messages
-          expect(git_commits).to include 'Update addressable from 2.5.0 to 2.5.2'
+          expect(git_commits).to include 'Update addressable from 2.5.1 to 2.5.2'
           expect(git_commits).to include 'Update rake from 12.3.0 to 12.3.1'
         end
       end
@@ -389,6 +389,8 @@ class FakeGit
 
   def init
     env.run('git init')
+    env.run('git config user.email "lapidarist@example.com"')
+    env.run('git config user.name "lapidarist integration"')
   end
 
   def commit_files(message, *files)
