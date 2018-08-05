@@ -4,6 +4,7 @@ require 'open3'
 require_relative 'lapidarist/configuration'
 require_relative 'lapidarist/options'
 require_relative 'lapidarist/level'
+require_relative 'lapidarist/version_change'
 require_relative 'lapidarist/gem'
 require_relative 'lapidarist/gems'
 
