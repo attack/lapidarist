@@ -62,8 +62,7 @@ module Lapidarist
               updated_but_failed_gem,
               attempt: attempt,
               status: :failed,
-              level: updated_but_failed_gem.latest_attempt[:level]
-              updated_version: updated_but_failed_gem.latest_attempt.version,
+              updated_version: updated_but_failed_gem.latest_attempt.version
             )
           else
             failed_gem_name = git.bisect(sha.last_good, test)
@@ -75,8 +74,7 @@ module Lapidarist
               updated_but_failed_gem,
               attempt: attempt,
               status: :failed,
-              level: updated_but_failed_gem.latest_attempt[:level]
-              updated_version: updated_but_failed_gem.latest_attempt.version,
+              updated_version: updated_but_failed_gem.latest_attempt.version
             )
           end
         gems = gems.merge(failed_gem)

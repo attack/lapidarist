@@ -3,18 +3,16 @@ module Lapidarist
     def status; nil; end
     def reason; nil; end
     def version; nil; end
-    def level; nil; end
     def updated?; false; end
   end
 
   class Attempt
     attr_reader :status, :reason, :version
 
-    def initialize(status:, reason:, version:, level:)
+    def initialize(status:, reason:, version:)
       @status = status
       @reason = reason
       @version = version
-      @level = level
     end
 
     def updated?
@@ -34,7 +32,7 @@ module Lapidarist
       @attempts = attempts
     end
 
-    def self.from(gem, position: nil, attempt: 0, status: nil, reason: nil, updated_version: nil, level: nil)
+    def self.from(gem, position: nil, attempt: 0, status: nil, reason: nil, updated_version: nil)
       attempts = gem.attempts
 
       if status
@@ -42,8 +40,7 @@ module Lapidarist
           attempt => Attempt.new(
             status: status,
             reason: reason,
-            version: updated_version,
-            level: level
+            version: updated_version
           )
         )
       end
@@ -78,10 +75,6 @@ module Lapidarist
       latest_attempt&.status
     end
 
-    def current_level
-      latest_attempt&.level
-    end
-
     def outdated?(recursive: false)
       current_status.nil? || (recursive && available_update_levels?)
     end
@@ -111,15 +104,11 @@ module Lapidarist
     end
 
     def available_update_levels?
-      failed? && current_level > PATCH
+      failed? && !version_change.next_level.nil?
     end
 
     def next_semver_level
-      if current_level
-        LEVELS.detect { |level| level < current_level }
-      else
-        MAJOR
-      end
+      version_change.next_level
     end
 
     def log_s
@@ -147,6 +136,13 @@ module Lapidarist
 
     def updated_attempt
       @updated_attempt ||= attempts.values.detect(&:updated?)
+    end
+
+    def version_change
+      @version_change ||= Lapidarist::VersionChange.new(
+        installed: installed_version,
+        updated: latest_attempt&.version
+      )
     end
   end
 end

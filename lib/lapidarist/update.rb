@@ -46,7 +46,7 @@ module Lapidarist
 
         skipped_gem
       else
-        updated_gem = Gem.from(outdated_gem, attempt: attempt, status: :updated, updated_version: updated_version, level: semver_level_restriction)
+        updated_gem = Gem.from(outdated_gem, attempt: attempt, status: :updated, updated_version: updated_version)
         Lapidarist.logger.footer "updated #{updated_gem.name} to #{updated_gem.updated_version}"
 
         git.add('Gemfile', 'Gemfile.lock')

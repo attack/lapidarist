@@ -28,4 +28,40 @@ RSpec.describe Lapidarist::Gem do
       end
     end
   end
+
+  describe '#next_semver_level' do
+    it 'returns the next semver level after the current attempted install' do
+      gem = Lapidarist::Gem.new(
+        name: 'rack',
+        newest_version: '1.0.0',
+        installed_version: '0.0.1'
+      )
+
+      updated_but_failed_gem = Lapidarist::Gem.from(
+        gem,
+        updated_version: '1.0.0',
+        status: :failed
+      )
+
+      expect(updated_but_failed_gem.next_semver_level).to eq Lapidarist::MINOR
+    end
+
+    context 'when the updated version was a lower level than the level' do
+      it 'returns the next semver level without duplicating the previous update' do
+        gem = Lapidarist::Gem.new(
+          name: 'rack',
+          newest_version: '1.0.0',
+          installed_version: '0.0.1'
+        )
+
+        updated_but_failed_gem = Lapidarist::Gem.from(
+          gem,
+          updated_version: '0.1.0',
+          status: :failed
+        )
+
+        expect(updated_but_failed_gem.next_semver_level).to eq Lapidarist::PATCH
+      end
+    end
+  end
 end
