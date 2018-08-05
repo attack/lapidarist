@@ -1,4 +1,27 @@
 module Lapidarist
+  class NullAttempt
+    def status; nil; end
+    def reason; nil; end
+    def version; nil; end
+    def level; nil; end
+    def updated?; false; end
+  end
+
+  class Attempt
+    attr_reader :status, :reason, :version
+
+    def initialize(status:, reason:, version:, level:)
+      @status = status
+      @reason = reason
+      @version = version
+      @level = level
+    end
+
+    def updated?
+      status == :updated
+    end
+  end
+
   class Gem
     attr_reader :name, :position, :newest_version, :installed_version, :attempts
 
@@ -16,12 +39,12 @@ module Lapidarist
 
       if status
         attempts = attempts.merge(
-          attempt => {
+          attempt => Attempt.new(
             status: status,
             reason: reason,
             version: updated_version,
             level: level
-          }
+          )
         )
       end
 
@@ -52,11 +75,11 @@ module Lapidarist
     end
 
     def current_status
-      latest_attempt&.fetch(:status, nil)
+      latest_attempt&.status
     end
 
     def current_level
-      latest_attempt&.fetch(:level, nil)
+      latest_attempt&.level
     end
 
     def outdated?(recursive: false)
@@ -76,7 +99,7 @@ module Lapidarist
     end
 
     def updated_version
-      updated_attempt&.fetch(:version, nil)
+      updated_attempt&.version
     end
 
     def what_changed
@@ -108,22 +131,12 @@ module Lapidarist
       ].join(', ')
     end
 
-    def to_h
-      {
-        name: name,
-        newest_version: newest_version,
-        installed_version: installed_version,
-        groups: groups,
-        attempts: attempts.to_h
-      }
-    end
-
     def latest_attempt_number
       @latest_attempt_number ||= attempts.keys.last
     end
 
     def latest_attempt
-      @latest_attempt ||= attempts[latest_attempt_number] || {}
+      @latest_attempt ||= attempts[latest_attempt_number] || NullAttempt.new
     end
 
     private
@@ -133,7 +146,7 @@ module Lapidarist
     end
 
     def updated_attempt
-      @updated_attempt ||= attempts.values.detect { |a| a[:status] == :updated }
+      @updated_attempt ||= attempts.values.detect(&:updated?)
     end
   end
 end
