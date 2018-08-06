@@ -12,6 +12,10 @@ module Lapidarist
     end
 
     def stub_options(args = {})
+      if args.key?(:groups)
+        args[:groups] = args[:groups].map { |g| Lapidarist::GroupConstraint.new(g) }
+      end
+
       stub_args = {
         directory: Pathname.new('/foo'),
         verbosity: 0,

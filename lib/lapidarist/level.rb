@@ -2,11 +2,16 @@ module Lapidarist
   class Level
     include Comparable
 
-    attr_reader :index
+    attr_reader :name, :index
 
     def initialize(name:, index:)
       @name = name
       @index = index
+    end
+
+    def self.from(name)
+      return unless name
+      Lapidarist::LEVELS.detect { |l| l.name == name.to_sym }
     end
 
     def to_s
@@ -18,10 +23,6 @@ module Lapidarist
       return 0 if index == other.index
       return -1 if index > other.index
     end
-
-    private
-
-    attr_reader :name
   end
 
   MAJOR = Level.new(name: :major, index: 1)

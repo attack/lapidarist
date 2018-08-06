@@ -276,6 +276,36 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
       end
     end
 
+    context 'when the bundler group is specified with version constraints' do
+      it 'updates only the specified gems in the group respecting each constraint and the global default' do
+        within_temp_repo do |env, bundle, git|
+          bundle.add_lapidarist
+          git.commit_files('add lapidarist', 'Gemfile', 'Gemfile.lock')
+
+          env.write_file('test.sh', 0755) do |f|
+            f.write "#!/usr/bin/env bash\n"
+            f.write "exit 0\n"
+          end
+          git.commit_files('add git bisect test file', 'test.sh')
+
+          bundle.add_gem(:"concurrent-ruby", '1.0.4', '<= 1.0.5', nil)
+          bundle.add_gem(:rack, '1.5.4', '<= 2.0.5', [:test])
+          bundle.add_gem(:rake, '11.2.0', '<= 12.3.1', [:acceptance, :test])
+          bundle.install
+          git.commit_files('add initial gems', 'Gemfile', 'Gemfile.lock')
+
+          expect {
+            bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q -g test:minor -g acceptance --patch")
+          }.to change { git.commit_messages.length }.by(2)
+          expect(exit_status).to be_success
+
+          git_commits = git.commit_messages
+          expect(git_commits).to include 'Update rake from 11.2.0 to 11.2.2'
+          expect(git_commits).to include 'Update rack from 1.5.4 to 1.6.10'
+        end
+      end
+    end
+
     context 'when recursion is enabled' do
       it 'updates gems by trying each semver level' do
         within_temp_repo do |env, bundle, git|
