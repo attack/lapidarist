@@ -33,11 +33,8 @@ module Lapidarist
     def update_gem(outdated_gem, attempt)
       Lapidarist.logger.smart_header "Updating #{outdated_gem.name} from #{outdated_gem.installed_version}"
 
-      available_semver_levels = [Lapidarist.config.version]
-      available_semver_levels << outdated_gem.next_semver_level if Lapidarist.config.recursive
-      semver_level_restriction = available_semver_levels.compact.min
-
-      bundle.update(outdated_gem, level: semver_level_restriction)
+      level_constraint = Lapidarist::LevelConstraint.new(outdated_gem)
+      bundle.update(outdated_gem, level: level_constraint.maximum)
       updated_version = bundle.version(outdated_gem)
 
       if git.clean?
