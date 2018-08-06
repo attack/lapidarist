@@ -49,7 +49,7 @@ module Lapidarist
         end
 
         opts.on("-g GROUP_NAME", "--group GROUP_NAME", "Limit gems to be updated to a specified group(s).") do |g|
-          Lapidarist.config.groups << g
+          Lapidarist.config.groups << Lapidarist::GroupConstraint.new(g)
         end
 
         opts.on("--major", "Limit updates to major, minor and patch versions (essentially everything).") do |p|

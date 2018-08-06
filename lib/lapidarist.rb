@@ -2,6 +2,7 @@ require 'lapidarist/version'
 require 'open3'
 
 require_relative 'lapidarist/configuration'
+require_relative 'lapidarist/group_constraint'
 require_relative 'lapidarist/options'
 require_relative 'lapidarist/level'
 require_relative 'lapidarist/version_change'

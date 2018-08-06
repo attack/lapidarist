@@ -48,7 +48,7 @@ module Lapidarist
     def reason_to_skip(gem)
       if !Lapidarist.config.all && !gem.dependency?
         :sub_dependency
-      elsif Lapidarist.config.groups.any? && (Lapidarist.config.groups & gem.groups).none?
+      elsif Lapidarist.config.groups.any? && (Lapidarist.config.groups.map(&:name) & gem.groups).none?
         :unmatched_group
       end
     end
