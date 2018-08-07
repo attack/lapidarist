@@ -24,8 +24,8 @@ module Lapidarist
 
     def version(gem)
       stdout = shell.run('bundle list', "grep \" #{gem.name} \"")
-      result = stdout.match(/\((?<version>[0-9\.]+)\)/)
-      result[:version] if result
+      result = stdout.match(/\((?<version>[0-9\.]+)(?<sha> \w{7})?\)/)
+      Lapidarist::GemVersion.new(version: result[:version], sha: result[:sha]&.strip) if result
     end
 
     private
@@ -33,14 +33,14 @@ module Lapidarist
     attr_reader :shell
 
     def parse_gem_from(line)
-      regex = / \* (.*) \(newest (\d[\d\.]*\d)[,\s] installed (\d[\d\.]*\d)[\),\s](.*groups \"(.*)\")?/.match line
+      regex = / \* (.*) \(newest (\d[\d\.]*\d)( \w{7})?[,\s] installed (\d[\d\.]*\d)( \w{7})?[\),\s](.*groups \"(.*)\")?/.match line
 
       unless regex.nil?
         Gem.new(
           name: regex[1],
-          newest_version: regex[2],
-          installed_version: regex[3],
-          groups: Array(regex[5]&.split(',')).map(&:strip)
+          newest_version: Lapidarist::GemVersion.new(version: regex[2], sha: regex[3]&.strip),
+          installed_version: Lapidarist::GemVersion.new(version: regex[4], sha: regex[5]&.strip),
+          groups: Array(regex[7]&.split(',')).map(&:strip)
         )
       end
     end

@@ -18,11 +18,11 @@ module Lapidarist
     attr_reader :installed, :updated
 
     def installed_segments
-      @installed_segments ||= installed.split('.')
+      @installed_segments ||= installed.version.split('.')
     end
 
     def updated_segments
-      @updated_segments ||= updated&.split('.')
+      @updated_segments ||= updated&.version&.split('.')
     end
 
     def level

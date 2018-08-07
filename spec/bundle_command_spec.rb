@@ -28,9 +28,33 @@ RSpec.describe Lapidarist::BundleCommand do
       outdated_gems = Lapidarist::BundleCommand.new.outdated.to_a
 
       expect(outdated_gems.length).to eq 3
-      expect(outdated_gems[0]).to eq Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: %w(default))
-      expect(outdated_gems[1]).to eq Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0', groups: %w(development test))
-      expect(outdated_gems[2]).to eq Lapidarist::Gem.new(name: 'foobar', newest_version: '1.0.0', installed_version: '0.1.0')
+      expect(outdated_gems[0]).to eq Lapidarist::Gem.new(name: 'rack', newest_version: Lapidarist::GemVersion.new(version: '2.0.5'), installed_version: Lapidarist::GemVersion.new(version: '2.0.3'), groups: %w(default))
+      expect(outdated_gems[1]).to eq Lapidarist::Gem.new(name: 'rake', newest_version: Lapidarist::GemVersion.new(version: '12.3.1'), installed_version: Lapidarist::GemVersion.new(version: '10.5.0'), groups: %w(development test))
+      expect(outdated_gems[2]).to eq Lapidarist::Gem.new(name: 'foobar', newest_version: Lapidarist::GemVersion.new(version: '1.0.0'), installed_version: Lapidarist::GemVersion.new(version: '0.1.0'))
+    end
+
+    it 'parses github repos from the output and returns outdated gem objects' do
+      std_out = double(:STD_OUT)
+      allow(std_out).to receive(:gets).and_return(
+        'Fetching gem metadata from https://rubygems.org/........',
+        'Fetching gem metadata from https://rubygems.org/.',
+        'Resolving dependencies...',
+        '',
+        'Outdated gems included in the bundle:',
+        '  * lapidarist (newest 0.1.0 aa1413d, installed 0.0.1 61e80a9) in groups "development"',
+        nil
+      )
+      stub_shell { std_out }
+
+      outdated_gems = Lapidarist::BundleCommand.new.outdated.to_a
+
+      expect(outdated_gems.length).to eq 1
+      expect(outdated_gems[0]).to eq Lapidarist::Gem.new(
+        name: 'lapidarist',
+        newest_version: Lapidarist::GemVersion.new(version: '0.1.0', sha: 'aa1413d'),
+        installed_version:  Lapidarist::GemVersion.new(version: '0.0.1', sha: '61e80a9'),
+        groups: %w(development)
+      )
     end
   end
 
@@ -95,7 +119,18 @@ RSpec.describe Lapidarist::BundleCommand do
         bundle = Lapidarist::BundleCommand.new
         gem = stub_gem(name: 'bundler')
 
-        expect(bundle.version(gem)).to eq '1.16.1'
+        expect(bundle.version(gem)).to eq Lapidarist::GemVersion.new(version: '1.16.1')
+      end
+
+      context 'and the version has a sha' do
+        it 'returns the version with sha' do
+          stub_shell('  * bundler (1.16.1 0034ef3)')
+
+          bundle = Lapidarist::BundleCommand.new
+          gem = stub_gem(name: 'bundler')
+
+          expect(bundle.version(gem)).to eq Lapidarist::GemVersion.new(version: '1.16.1', sha: '0034ef3')
+        end
       end
     end
 

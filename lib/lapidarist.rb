@@ -7,6 +7,7 @@ require_relative 'lapidarist/level_constraint'
 require_relative 'lapidarist/options'
 require_relative 'lapidarist/level'
 require_relative 'lapidarist/version_change'
+require_relative 'lapidarist/gem_version'
 require_relative 'lapidarist/gem'
 require_relative 'lapidarist/gems'
 

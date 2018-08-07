@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 ### New features
+* add ability to parse and update gems locked to a sha.
 
 ## 0.1.0 (2018-08-07)
 
@@ -12,10 +13,10 @@
 * allow random seed to be provided.
 * use CircleCi to run specs.
 * allow groups to have different semver level restrictions.
-* add ability to promote gems in the order of being updated
-* add ability to demote gems in the order of being updated
-* add ability to only update specific gems
-* add ability to update everything but specific excluded gems
+* add ability to promote gems in the order of being updated.
+* add ability to demote gems in the order of being updated.
+* add ability to only update specific gems.
+* add ability to update everything but specific excluded gems.
 
 ## 0.0.1 (2018-08-01)
 

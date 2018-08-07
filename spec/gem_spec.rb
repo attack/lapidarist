@@ -7,11 +7,22 @@ RSpec.describe Lapidarist::Gem do
         gem = Lapidarist::Gem.new(
           name: 'rack',
           newest_version: '',
-          installed_version: '0.0.1',
+          installed_version: Lapidarist::GemVersion.new(version: '0.0.1'),
         )
-        updated_gem = Lapidarist::Gem.from(gem, updated_version: '2.0.0', status: :updated)
+        updated_gem = Lapidarist::Gem.from(gem, updated_version: Lapidarist::GemVersion.new(version: '2.0.0'), status: :updated)
 
         expect(updated_gem.what_changed).to eq 'rack from 0.0.1 to 2.0.0'
+      end
+
+      it 'returns a message including the version and sha change' do
+        gem = Lapidarist::Gem.new(
+          name: 'rack',
+          newest_version: '',
+          installed_version: Lapidarist::GemVersion.new(version: '0.0.1', sha: '1234567'),
+        )
+        updated_gem = Lapidarist::Gem.from(gem, updated_version: Lapidarist::GemVersion.new(version: '2.0.0', sha: '4567890'), status: :updated)
+
+        expect(updated_gem.what_changed).to eq 'rack from 0.0.1 1234567 to 2.0.0 4567890'
       end
     end
 
@@ -20,9 +31,9 @@ RSpec.describe Lapidarist::Gem do
         gem = Lapidarist::Gem.new(
           name: 'rack',
           newest_version: '',
-          installed_version: '0.0.1',
+          installed_version: Lapidarist::GemVersion.new(version: '0.0.1'),
         )
-        updated_gem = Lapidarist::Gem.from(gem, updated_version: '0.0.1', status: :updated)
+        updated_gem = Lapidarist::Gem.from(gem, updated_version: Lapidarist::GemVersion.new(version: '0.0.1'), status: :updated)
 
         expect(updated_gem.what_changed).to eq 'rack dependencies'
       end
@@ -33,13 +44,13 @@ RSpec.describe Lapidarist::Gem do
     it 'returns the next semver level after the current attempted install' do
       gem = Lapidarist::Gem.new(
         name: 'rack',
-        newest_version: '1.0.0',
-        installed_version: '0.0.1'
+        newest_version: Lapidarist::GemVersion.new(version: '1.0.0'),
+        installed_version: Lapidarist::GemVersion.new(version: '0.0.1')
       )
 
       updated_but_failed_gem = Lapidarist::Gem.from(
         gem,
-        updated_version: '1.0.0',
+        updated_version: Lapidarist::GemVersion.new(version: '1.0.0'),
         status: :failed
       )
 
@@ -50,13 +61,13 @@ RSpec.describe Lapidarist::Gem do
       it 'returns the next semver level without duplicating the previous update' do
         gem = Lapidarist::Gem.new(
           name: 'rack',
-          newest_version: '1.0.0',
-          installed_version: '0.0.1'
+          newest_version: Lapidarist::GemVersion.new(version: '1.0.0'),
+          installed_version: Lapidarist::GemVersion.new(version: '0.0.1')
         )
 
         updated_but_failed_gem = Lapidarist::Gem.from(
           gem,
-          updated_version: '0.1.0',
+          updated_version: Lapidarist::GemVersion.new(version: '0.1.0'),
           status: :failed
         )
 
