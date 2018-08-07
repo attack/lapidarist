@@ -4,6 +4,10 @@
 
 ### New features
 
+## 0.1.0 (2018-08-07)
+
+### New features
+
 * by default, outdated gems are updated in random order.
 * allow random seed to be provided.
 * use CircleCi to run specs.
