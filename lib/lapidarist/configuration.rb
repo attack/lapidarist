@@ -18,7 +18,8 @@ module Lapidarist
         recursive: false,
         random: true,
         seed: nil,
-        promoted: []
+        promoted: [],
+        demoted: []
       )
     end
   end

@@ -28,29 +28,37 @@ module Lapidarist
     attr_reader :bundle
 
     def all_outdated_gems
-      bundle.outdated.to_a
+      @all_outdated_gems ||= bundle.outdated.to_a
     end
 
     def promoted_gems
-      Lapidarist.config.promoted.map do |gem_name|
+      (Lapidarist.config.promoted - Lapidarist.config.demoted).map do |gem_name|
+        all_outdated_gems.detect { |g| g.name == gem_name }
+      end
+    end
+
+    def demoted_gems
+      Lapidarist.config.demoted.map do |gem_name|
         all_outdated_gems.detect { |g| g.name == gem_name }
       end
     end
 
     def remaining_outdated_gems
       all_outdated_gems.reject do |gem|
-        Lapidarist.config.promoted.include?(gem.name)
+        Lapidarist.config.promoted.include?(gem.name) ||
+          Lapidarist.config.demoted.include?(gem.name)
       end
     end
 
     def outdated_gems
-      gems = promoted_gems + remaining_outdated_gems
+      sorted_remaining_outdated_gems =
+        if Lapidarist.config.random
+          remaining_outdated_gems.shuffle(random: random)
+        else
+          remaining_outdated_gems
+        end
 
-      if Lapidarist.config.random
-        gems.shuffle(random: random)
-      else
-        gems
-      end
+      promoted_gems + sorted_remaining_outdated_gems + demoted_gems
     end
 
     def random

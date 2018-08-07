@@ -76,8 +76,12 @@ module Lapidarist
           Lapidarist.config.seed = s.to_i
         end
 
-        opts.on("--promote GEMS", "Promoted gems are updated first, in order as they are added.") do |gem_names|
+        opts.on("--promote GEMS", "Promoted gems are updated first, in order as they are promoted.") do |gem_names|
           Lapidarist.config.promoted += gem_names.split(',').map(&:strip)
+        end
+
+        opts.on("--demote GEMS", "Demoted gems are updated last, in reverse order as they are demoted.") do |gem_names|
+          Lapidarist.config.demoted += gem_names.split(',').map(&:strip).reverse
         end
       end
 
