@@ -17,7 +17,8 @@ module Lapidarist
         version: MAJOR,
         recursive: false,
         random: true,
-        seed: nil
+        seed: nil,
+        promoted: []
       )
     end
   end

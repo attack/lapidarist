@@ -28,7 +28,8 @@ module Lapidarist
         groups: [],
         version: :major,
         recursive: false,
-        random: false
+        random: false,
+        promoted: []
       }.merge(args)
 
       unless stub_args[:directory].respond_to?(:dirname)

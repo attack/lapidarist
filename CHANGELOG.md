@@ -8,6 +8,7 @@
 * allow random seed to be provided.
 * use CircleCi to run specs.
 * allow groups to have different semver level restrictions.
+* add ability to promote gems in the order of being updated
 
 ## 0.0.1 (2018-08-01)
 

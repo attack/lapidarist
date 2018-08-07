@@ -75,6 +75,10 @@ module Lapidarist
         opts.on("--seed SEED", "When randomizing the outdated order, use the provided seed.") do |s|
           Lapidarist.config.seed = s.to_i
         end
+
+        opts.on("--promote GEMS", "Promoted gems are updated first, in order as they are added.") do |gem_names|
+          Lapidarist.config.promoted += gem_names.split(',').map(&:strip)
+        end
       end
 
       opt_parser.parse!(args)

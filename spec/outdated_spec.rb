@@ -115,5 +115,26 @@ RSpec.describe Lapidarist::Outdated do
         expect(gems_1.map(&:name)).not_to eq gems_2.map(&:name)
       end
     end
+
+    context 'when certain gems are promoted' do
+      it 'returns the promoted gems in order before the remaining gems' do
+        stub_options(promoted: %w(rack bcrypt), random: false)
+        bundle = stub_bundle_command
+        gem_1 = build_gem(name: 'addressable')
+        gem_2 = build_gem(name: 'bcrypt')
+        gem_3 = build_gem(name: 'rack')
+        gem_4 = build_gem(name: 'rake')
+        allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
+
+        gems = Lapidarist::Outdated.new.run
+
+        expect(gems.count).to eq 4
+        expect(gems.map(&:name)).to eq %w(rack bcrypt addressable rake)
+      end
+    end
+
+    def build_gem(name:)
+      Lapidarist::Gem.new(name: name, newest_version: '2.0.0', installed_version: '1.0.0', groups: ['default'])
+    end
   end
 end
