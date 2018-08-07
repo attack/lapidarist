@@ -30,7 +30,8 @@ module Lapidarist
         recursive: false,
         random: false,
         promoted: [],
-        demoted: []
+        demoted: [],
+        only: []
       }.merge(args)
 
       unless stub_args[:directory].respond_to?(:dirname)

@@ -196,6 +196,23 @@ RSpec.describe Lapidarist::Outdated do
       end
     end
 
+    context 'when certain gems are explicitly included' do
+      it 'returns only the included gems' do
+        stub_options(only: %w(rack bcrypt), random: false)
+        bundle = stub_bundle_command
+        gem_1 = build_gem(name: 'addressable')
+        gem_2 = build_gem(name: 'bcrypt')
+        gem_3 = build_gem(name: 'rack')
+        gem_4 = build_gem(name: 'rake')
+        allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
+
+        gems = Lapidarist::Outdated.new.run
+
+        expect(gems.count).to eq 2
+        expect(gems.map(&:name)).to eq %w(bcrypt rack)
+      end
+    end
+
     def build_gem(name:)
       Lapidarist::Gem.new(name: name, newest_version: '2.0.0', installed_version: '1.0.0', groups: ['default'])
     end

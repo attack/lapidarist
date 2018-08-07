@@ -19,7 +19,8 @@ module Lapidarist
         random: true,
         seed: nil,
         promoted: [],
-        demoted: []
+        demoted: [],
+        only: []
       )
     end
   end

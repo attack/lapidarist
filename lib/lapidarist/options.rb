@@ -83,6 +83,10 @@ module Lapidarist
         opts.on("--demote GEMS", "Demoted gems are updated last, in reverse order as they are demoted.") do |gem_names|
           Lapidarist.config.demoted += gem_names.split(',').map(&:strip).reverse
         end
+
+        opts.on("--only GEMS", "Only update gems that are included in this list.") do |gem_names|
+          Lapidarist.config.only += gem_names.split(',').map(&:strip)
+        end
       end
 
       opt_parser.parse!(args)
