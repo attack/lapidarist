@@ -196,7 +196,7 @@ RSpec.describe Lapidarist::Outdated do
       end
     end
 
-    context 'when certain gems are explicitly included' do
+    context 'when certain gems are explicitly included or excluded' do
       it 'returns only the included gems' do
         stub_options(only: %w(rack bcrypt), random: false)
         bundle = stub_bundle_command
@@ -210,6 +210,36 @@ RSpec.describe Lapidarist::Outdated do
 
         expect(gems.count).to eq 2
         expect(gems.map(&:name)).to eq %w(bcrypt rack)
+      end
+
+      it 'returns everything but the excluded gems' do
+        stub_options(except: %w(rack bcrypt), random: false)
+        bundle = stub_bundle_command
+        gem_1 = build_gem(name: 'addressable')
+        gem_2 = build_gem(name: 'bcrypt')
+        gem_3 = build_gem(name: 'rack')
+        gem_4 = build_gem(name: 'rake')
+        allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
+
+        gems = Lapidarist::Outdated.new.run
+
+        expect(gems.count).to eq 2
+        expect(gems.map(&:name)).to eq %w(addressable rake)
+      end
+
+      it 'returns only the included gems that were not also excluded' do
+        stub_options(only: %w(rack bcrypt), except: %w(rake bcrypt), random: false)
+        bundle = stub_bundle_command
+        gem_1 = build_gem(name: 'addressable')
+        gem_2 = build_gem(name: 'bcrypt')
+        gem_3 = build_gem(name: 'rack')
+        gem_4 = build_gem(name: 'rake')
+        allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
+
+        gems = Lapidarist::Outdated.new.run
+
+        expect(gems.count).to eq 1
+        expect(gems.map(&:name)).to eq %w(rack)
       end
     end
 

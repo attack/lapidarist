@@ -20,7 +20,8 @@ module Lapidarist
         seed: nil,
         promoted: [],
         demoted: [],
-        only: []
+        only: [],
+        except: []
       )
     end
   end

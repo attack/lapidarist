@@ -28,9 +28,9 @@ module Lapidarist
     attr_reader :bundle
 
     def all_outdated_gems
-      @all_outdated_gems ||= bundle.outdated.to_a.select do |gem|
-        Lapidarist.config.only.empty? || Lapidarist.config.only.include?(gem.name)
-      end
+      @all_outdated_gems ||= bundle.outdated.to_a.
+        select { |gem| Lapidarist.config.only.empty? || Lapidarist.config.only.include?(gem.name) }.
+        reject { |gem| Lapidarist.config.except.any? && Lapidarist.config.except.include?(gem.name) }
     end
 
     def promoted_gems

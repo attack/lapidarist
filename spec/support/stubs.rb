@@ -31,7 +31,8 @@ module Lapidarist
         random: false,
         promoted: [],
         demoted: [],
-        only: []
+        only: [],
+        except: []
       }.merge(args)
 
       unless stub_args[:directory].respond_to?(:dirname)

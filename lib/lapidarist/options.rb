@@ -87,6 +87,10 @@ module Lapidarist
         opts.on("--only GEMS", "Only update gems that are included in this list.") do |gem_names|
           Lapidarist.config.only += gem_names.split(',').map(&:strip)
         end
+
+        opts.on("--except GEMS", "Only update gems that are not included in this list.") do |gem_names|
+          Lapidarist.config.except += gem_names.split(',').map(&:strip)
+        end
       end
 
       opt_parser.parse!(args)
