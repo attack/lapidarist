@@ -123,7 +123,7 @@ RSpec.describe Lapidarist::Outdated do
 
     context 'when certain gems are promoted or demoted' do
       it 'returns the promoted gems in order before the remaining gems' do
-        stub_options(promoted: %w(rack bcrypt), random: false)
+        stub_options(promoted: %w(rack bcrypt foo), random: false)
         bundle = stub_bundle_command
         gem_1 = build_gem(name: 'addressable')
         gem_2 = build_gem(name: 'bcrypt')
@@ -138,7 +138,7 @@ RSpec.describe Lapidarist::Outdated do
       end
 
       it 'returns the demoted gems in order after the remaining gems' do
-        stub_options(demoted: %w(bcrypt rack), random: false)
+        stub_options(demoted: %w(bcrypt rack foo), random: false)
         bundle = stub_bundle_command
         gem_1 = build_gem(name: 'addressable')
         gem_2 = build_gem(name: 'bcrypt')
@@ -198,7 +198,7 @@ RSpec.describe Lapidarist::Outdated do
 
     context 'when certain gems are explicitly included or excluded' do
       it 'returns only the included gems' do
-        stub_options(only: %w(rack bcrypt), random: false)
+        stub_options(only: %w(rack bcrypt foo), random: false)
         bundle = stub_bundle_command
         gem_1 = build_gem(name: 'addressable')
         gem_2 = build_gem(name: 'bcrypt')
@@ -213,7 +213,7 @@ RSpec.describe Lapidarist::Outdated do
       end
 
       it 'returns everything but the excluded gems' do
-        stub_options(except: %w(rack bcrypt), random: false)
+        stub_options(except: %w(rack bcrypt foo), random: false)
         bundle = stub_bundle_command
         gem_1 = build_gem(name: 'addressable')
         gem_2 = build_gem(name: 'bcrypt')

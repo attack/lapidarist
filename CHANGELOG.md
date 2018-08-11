@@ -3,7 +3,16 @@
 ## master (unreleased)
 
 ### New features
+
+## 0.1.1 (2018-08-11)
+
+### New features
+
 * add ability to parse and update gems locked to a sha.
+
+### Bug fixes
+
+* fix promoted/demoted bug when gem wasn't in the outdated list.
 
 ## 0.1.0 (2018-08-07)
 

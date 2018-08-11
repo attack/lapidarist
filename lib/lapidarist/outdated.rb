@@ -34,14 +34,16 @@ module Lapidarist
     end
 
     def promoted_gems
-      (Lapidarist.config.promoted - Lapidarist.config.demoted).map do |gem_name|
-        all_outdated_gems.detect { |g| g.name == gem_name }
+      (Lapidarist.config.promoted - Lapidarist.config.demoted).each_with_object([]) do |gem_name, results|
+        promoted_gem = all_outdated_gems.detect { |g| g.name == gem_name }
+        results.push(promoted_gem) if promoted_gem
       end
     end
 
     def demoted_gems
-      Lapidarist.config.demoted.map do |gem_name|
-        all_outdated_gems.detect { |g| g.name == gem_name }
+      Lapidarist.config.demoted.each_with_object([]) do |gem_name, results|
+        demoted_gem = all_outdated_gems.detect { |g| g.name == gem_name }
+        results.push(demoted_gem) if demoted_gem
       end
     end
 
