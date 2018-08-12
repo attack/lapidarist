@@ -144,6 +144,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.not_to change { git.commit_messages.length }
           expect(exit_status).not_to be_success
+          expect(exit_status.exitstatus).to eq 1
         end
       end
     end
@@ -204,6 +205,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect {
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q -n 2 --ordered")
           }.to change { git.commit_messages.length }.by(2)
+          expect(exit_status).to be_success
 
           git_commits = git.commit_messages
           expect(git_commits).to include 'Update addressable from 2.5.1 to 2.5.2'
@@ -355,6 +357,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
             bundle.exec("lapidarist -d #{env.directory} -t ./test.sh -q")
           }.not_to change { git.commit_messages.length }
           expect(exit_status).not_to be_success
+          expect(exit_status.exitstatus).to eq 2
         end
       end
     end

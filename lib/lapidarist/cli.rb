@@ -14,7 +14,7 @@ module Lapidarist
 
       unless git.clean?
         Lapidarist.logger.footer('stopping, there are uncommitted changes')
-        return 1
+        return STATUS_ERROR
       end
 
       sha.record_good

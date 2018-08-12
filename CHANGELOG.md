@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+* errors return status of 2 instead of 1
+
 ### New features
 
 ## 0.1.1 (2018-08-11)

@@ -26,6 +26,10 @@ require_relative 'lapidarist/status'
 require_relative 'lapidarist/cli'
 
 module Lapidarist
+  STATUS_SUCCESS = 0
+  STATUS_FAILED = 1
+  STATUS_ERROR = 2
+
   class << self
     def config
       @config ||= Lapidarist::Configuration.new

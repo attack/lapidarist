@@ -6,7 +6,11 @@ module Lapidarist
     end
 
     def to_i
-      gems.updated.any? || attempt == 1
+      if gems.updated.any? || attempt == 1
+        STATUS_SUCCESS
+      else
+        STATUS_FAILED
+      end
     end
 
     private
