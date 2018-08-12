@@ -4,7 +4,6 @@ module Lapidarist
       @args = args
       @git = GitCommand.new
       @test = TestCommand.new
-      @outdated = Outdated.new
       @update = Update.new
       @sha = Sha.new
     end
@@ -12,8 +11,6 @@ module Lapidarist
     def run
       Options.new(args).parse
       Lapidarist.logger.header('Starting lapidarist')
-      Lapidarist.logger.debug("directory: #{Lapidarist.config.directory}", :options)
-      Lapidarist.logger.debug("test_script: #{Lapidarist.config.test_script}", :options)
 
       unless git.clean?
         Lapidarist.logger.footer('stopping, there are uncommitted changes')
@@ -21,7 +18,7 @@ module Lapidarist
       end
 
       sha.record_good
-      gems = outdated.run
+      gems = Lapidarist::Outdated.new.run
 
       status = nil
       attempt = 0
@@ -50,33 +47,15 @@ module Lapidarist
           status = Status.new(gems, attempt)
           break
         else
-          Lapidarist.logger.footer('test failed, investigating failure')
+          Lapidarist.logger.footer('test failed')
         end
 
-        failed_gem =
-          if updated_gems.one?
-            updated_but_failed_gem = updated_gems.first
-            git.reset_hard('HEAD^')
-
-            Gem.from(
-              updated_but_failed_gem,
-              attempt: attempt,
-              status: :failed,
-              updated_version: updated_but_failed_gem.latest_attempt.version
-            )
-          else
-            failed_gem_name = git.bisect(sha.last_good, test)
-            updated_but_failed_gem = updated_gems.detect { |g| g.name == failed_gem_name }
-            gems = gems.merge(updated_gems.take(sha.new_commit_count))
-
-            Gem.from(
-              updated_but_failed_gem,
-              attempt: attempt,
-              status: :failed,
-              updated_version: updated_but_failed_gem.latest_attempt.version
-            )
-          end
-        gems = gems.merge(failed_gem)
+        failed_gem = Lapidarist::FindFailure.new(
+          gems: updated_gems,
+          attempt: attempt,
+          last_good_sha: sha.last_good
+        ).run
+        gems = gems.merge(updated_gems.take(sha.new_commit_count)).merge(failed_gem)
         sha.record_good
       end
 
@@ -86,6 +65,6 @@ module Lapidarist
 
     private
 
-    attr_reader :args, :git, :test, :outdated, :update, :sha
+    attr_reader :args, :git, :test, :update, :sha
   end
 end

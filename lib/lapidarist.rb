@@ -19,6 +19,7 @@ require_relative 'lapidarist/test_command'
 require_relative 'lapidarist/update'
 require_relative 'lapidarist/outdated'
 require_relative 'lapidarist/sha'
+require_relative 'lapidarist/find_failure'
 
 require_relative 'lapidarist/summary'
 require_relative 'lapidarist/status'
