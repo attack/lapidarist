@@ -68,7 +68,6 @@ module Lapidarist
             failed_gem_name = git.bisect(sha.last_good, test)
             updated_but_failed_gem = updated_gems.detect { |g| g.name == failed_gem_name }
             gems = gems.merge(updated_gems.take(sha.new_commit_count))
-            sha.record_good
 
             Gem.from(
               updated_but_failed_gem,
@@ -78,6 +77,7 @@ module Lapidarist
             )
           end
         gems = gems.merge(failed_gem)
+        sha.record_good
       end
 
       Summary.new(gems).display

@@ -8,7 +8,10 @@ module Lapidarist
     def record_good
       good_sha = git.head
       Lapidarist.logger.debug("good sha: #{good_sha}")
-      @good_shas << good_sha
+
+      unless last_good == good_sha
+        @good_shas << good_sha
+      end
     end
 
     def last_good
