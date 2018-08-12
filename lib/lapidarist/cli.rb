@@ -61,6 +61,11 @@ module Lapidarist
 
       Summary.new(gems).display
       return status.to_i
+
+    rescue OptionParser::InvalidOption => e
+      warn e.message
+      warn 'For usage information, use --help'
+      return STATUS_ERROR
     end
 
     private
