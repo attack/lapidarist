@@ -12,7 +12,7 @@ module Lapidarist
           Lapidarist.config.directory = Pathname.new(d)
         end
 
-        opts.on("-t", "--test TEST_SCRIPT", "Test script given to git bisect.") do |t|
+        opts.on("-t", "--test TEST_SCRIPT", "Test script to assert that the gems updates are safe to commit.") do |t|
           Lapidarist.config.test_script = t
         end
 
@@ -28,7 +28,7 @@ module Lapidarist
           Lapidarist.config.verbosity += 1
         end
 
-        opts.on("-f", "--commit-flags flags", "Append flags to the commit command.") do |t|
+        opts.on("-f", "--commit-flags FLAGS", "Append flags to the commit command.") do |t|
           Lapidarist.config.commit_flags = t
         end
 
