@@ -21,6 +21,7 @@ require_relative 'lapidarist/outdated'
 require_relative 'lapidarist/sha'
 require_relative 'lapidarist/find_failure'
 
+require_relative 'lapidarist/threads'
 require_relative 'lapidarist/summary'
 require_relative 'lapidarist/status'
 require_relative 'lapidarist/cli'
@@ -30,6 +31,8 @@ module Lapidarist
   STATUS_FAILED = 1
   STATUS_ERROR = 2
 
+  class Abort < StandardError; end
+
   class << self
     def config
       @config ||= Lapidarist::Configuration.new
@@ -37,6 +40,10 @@ module Lapidarist
 
     def logger
       @logger ||= Lapidarist::Logger.new.tap { |l| l.setup }
+    end
+
+    def threads
+      @threads ||= Lapidarist::Threads.new
     end
   end
 end

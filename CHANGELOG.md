@@ -4,6 +4,7 @@
 
 * errors return status of 2 instead of 1
 * capture invalid option error, and display message
+* capture interrupt and clean up git commits
 
 ### New features
 

@@ -11,6 +11,7 @@ module Lapidarist
     def run
       Options.new(args).parse
       Lapidarist.logger.header('Starting lapidarist')
+      trap_interrupt
 
       unless git.clean?
         Lapidarist.logger.footer('stopping, there are uncommitted changes')
@@ -66,6 +67,21 @@ module Lapidarist
       warn e.message
       warn 'For usage information, use --help'
       return STATUS_ERROR
+    rescue Lapidarist::Abort => e
+      git.reset_hard(sha.last_good)
+      Summary.new(gems).display
+      return STATUS_ERROR
+    end
+
+    def trap_interrupt
+      Signal.trap('INT') do
+        warn
+        warn 'Cleaning up and exiting... Interrupt again to exit immediately.'
+
+        Lapidarist.threads.stop
+
+        raise Lapidarist::Abort
+      end
     end
 
     private

@@ -14,13 +14,15 @@ module Lapidarist
       Lapidarist.logger.info "COMMAND > `#{command}`", 1
 
       if block_given?
-        Open3.popen2e(command, chdir: Lapidarist.config.directory) do |_std_in, std_out_err|
+        Open3.popen2e(command, chdir: Lapidarist.config.directory) do |_std_in, std_out_err, wait_thr|
+          Lapidarist.threads << wait_thr
           yield(std_out_err)
         end
       else
         out_err = []
 
         status = Open3.popen2e(command, chdir: Lapidarist.config.directory) do |_std_in, std_out_err, wait_thr|
+          Lapidarist.threads << wait_thr
           while line = std_out_err.gets
             Lapidarist.logger.std_out_err(line, label || command)
             out_err << line
@@ -36,12 +38,14 @@ module Lapidarist
 
     def pipe_multiple_commands(*commands)
       if block_given?
-        Open3.pipeline_r(*commands, chdir: Lapidarist.config.directory) do |std_out, _ts|
+        Open3.pipeline_r(*commands, chdir: Lapidarist.config.directory) do |std_out, ts|
+          Lapidarist.threads << ts
           yield(std_out)
         end
       else
         output = ''
-        Open3.pipeline_r(*commands, chdir: Lapidarist.config.directory) do |std_out, _ts|
+        Open3.pipeline_r(*commands, chdir: Lapidarist.config.directory) do |std_out, ts|
+          Lapidarist.threads << ts
           output = std_out.read
         end
         output
