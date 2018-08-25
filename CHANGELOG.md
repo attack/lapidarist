@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 0.1.2 (2018-08-24)
+
+### New features
+
 * errors return status of 2 instead of 1
 * capture invalid option error, and display message
 * capture interrupt and clean up git commits
@@ -9,8 +13,6 @@
 ### Bug fixes
 
 * when the version doesn't change (but dependencies do), do not attempt any more recursive updates
-
-### New features
 
 ## 0.1.1 (2018-08-11)
 
