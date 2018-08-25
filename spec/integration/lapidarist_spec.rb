@@ -78,7 +78,7 @@ RSpec.describe 'Lapidarist CLI', type: :integration do
           expect(exit_status).to be_success
 
           git_commits = git.commit_messages
-          expect(git_commits).to include 'Update public_suffix from 3.0.1 to 3.0.2'
+          expect(git_commits).to include 'Update public_suffix from 3.0.1 to 3.0.3'
           expect(git_commits).to include 'Update concurrent-ruby from 1.0.4 to 1.0.5'
           expect(git_commits).to include 'Update faraday from 0.12.1 to 0.12.2'
           expect(git_commits).to include 'Update i18n from 1.0.0 to 1.0.1'
