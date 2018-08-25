@@ -1,4 +1,5 @@
 require 'ostruct'
+require 'pathname'
 
 module Lapidarist
   class Configuration < OpenStruct
