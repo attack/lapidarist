@@ -28,6 +28,7 @@ module Lapidarist
   MAJOR = Level.new(name: :major, index: 1)
   MINOR = Level.new(name: :minor, index: 2)
   PATCH = Level.new(name: :patch, index: 3)
+  NONE = Level.new(name: "", index: 4)
 
   LEVELS = [MAJOR, MINOR, PATCH].freeze
 end

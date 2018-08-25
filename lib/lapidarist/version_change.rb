@@ -33,6 +33,12 @@ module Lapidarist
           Lapidarist::MINOR
         elsif updated_segments && updated_segments[0] == installed_segments[0] && updated_segments[1] == installed_segments[1] && updated_segments[2] > installed_segments[2]
           Lapidarist::PATCH
+        elsif updated_segments && (
+          (updated_segments[0] == installed_segments[0] && updated_segments[1] == installed_segments[1] && updated_segments[2] <= installed_segments[2]) ||
+          (updated_segments[0] == installed_segments[0] && updated_segments[1] <= installed_segments[1]) ||
+          updated_segments[0] <= installed_segments[0]
+        )
+          Lapidarist::NONE
         end
     end
   end
