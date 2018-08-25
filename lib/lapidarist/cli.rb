@@ -58,6 +58,10 @@ module Lapidarist
         ).run
         gems = gems.merge(updated_gems.take(sha.new_commit_count)).merge(failed_gem)
         sha.record_good
+
+        if Lapidarist.config.debug
+          Summary.new(gems).display_debug
+        end
       end
 
       Summary.new(gems).display
