@@ -35,6 +35,10 @@ module Lapidarist
       write "OUT_ERR (#{command}) > #{message.strip}", 2
     end
 
+    def std_out(message, command)
+      write "OUT (#{command}) > #{message.strip}", 2
+    end
+
     def setup
       if Lapidarist.config.log_path && !Lapidarist.config.log_path.empty?
         Open3.capture2("mkdir -p #{Lapidarist.config.log_path.dirname}", chdir: Lapidarist.config.directory)

@@ -8,6 +8,12 @@ module Lapidarist
       end
     end
 
+    def run_out_only(*commands, label: nil, &block)
+      if commands.one?
+        run_single_command_out_only("#{commands.first} 2>/dev/null", label, &block)
+      end
+    end
+
     private
 
     def run_single_command(command, label)
@@ -33,6 +39,32 @@ module Lapidarist
         Lapidarist.logger.info "STATUS > #{status}", 2
 
         [out_err.join("\n"), status]
+      end
+    end
+
+    def run_single_command_out_only(command, label)
+      Lapidarist.logger.info "COMMAND > `#{command}`", 1
+
+      if block_given?
+        Open3.popen3(command, chdir: Lapidarist.config.directory) do |_std_in, std_out, _std_err, wait_thr|
+          Lapidarist.threads << wait_thr
+          yield(std_out)
+        end
+      else
+        out = []
+
+        status = Open3.popen3(command, chdir: Lapidarist.config.directory) do |_std_in, std_out, _std_err, wait_thr|
+          Lapidarist.threads << wait_thr
+          while line = std_out.gets
+            Lapidarist.logger.std_out(line, label || command)
+            out << line
+          end
+          wait_thr.value
+        end
+
+        Lapidarist.logger.info "STATUS > #{status}", 2
+
+        [out.join("\n"), status]
       end
     end
 
