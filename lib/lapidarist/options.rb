@@ -12,11 +12,11 @@ module Lapidarist
           Lapidarist.config.directory = Pathname.new(d)
         end
 
-        opts.on("-t", "--test TEST_SCRIPT", "Test script to assert that the gems updates are safe to commit.") do |t|
+        opts.on("-t", "--test TEST_SCRIPT", "Test script to assert that the dependency updates are safe to commit.") do |t|
           Lapidarist.config.test_script = t
         end
 
-        opts.on("-a", "--all", "Update gems that are sub-dependencies.") do |t|
+        opts.on("-a", "--all", "Update dependencies that are sub-dependencies.") do |t|
           Lapidarist.config.all = true
         end
 
@@ -40,15 +40,15 @@ module Lapidarist
           Lapidarist.config.log_path = t
         end
 
-        opts.on("-n NUMBER_OF_GEMS", "Limit the number of gems to be updated.") do |t|
+        opts.on("-n NUMBER_OF_GEMS", "Limit the number of dependencies to be updated.") do |t|
           Lapidarist.config.update_limit = t.to_i
         end
 
-        opts.on("--one", "Limit the number of gems to be updated to just one.") do |t|
+        opts.on("--one", "Limit the number of dependencies to be updated to just one.") do |t|
           Lapidarist.config.update_limit = 1
         end
 
-        opts.on("-g GROUP_NAME", "--group GROUP_NAME", "Limit gems to be updated to a specified group(s).") do |g|
+        opts.on("-g GROUP_NAME", "--group GROUP_NAME", "Limit gems to be updated to a specified group(s). Bundler only!") do |g|
           Lapidarist.config.groups << Lapidarist::GroupConstraint.new(g)
         end
 
@@ -76,20 +76,20 @@ module Lapidarist
           Lapidarist.config.seed = s.to_i
         end
 
-        opts.on("--promote GEMS", "Promoted gems are updated first, in order as they are promoted.") do |gem_names|
-          Lapidarist.config.promoted += gem_names.split(',').map(&:strip)
+        opts.on("--promote GEMS", "Promoted dependencies are updated first, in order as they are promoted.") do |dependency_names|
+          Lapidarist.config.promoted += dependency_names.split(',').map(&:strip)
         end
 
-        opts.on("--demote GEMS", "Demoted gems are updated last, in reverse order as they are demoted.") do |gem_names|
-          Lapidarist.config.demoted += gem_names.split(',').map(&:strip).reverse
+        opts.on("--demote GEMS", "Demoted dependencies are updated last, in reverse order as they are demoted.") do |dependency_names|
+          Lapidarist.config.demoted += dependency_names.split(',').map(&:strip).reverse
         end
 
-        opts.on("--only GEMS", "Only update gems that are included in this list.") do |gem_names|
-          Lapidarist.config.only += gem_names.split(',').map(&:strip)
+        opts.on("--only GEMS", "Only update dependencies that are included in this list.") do |dependency_names|
+          Lapidarist.config.only += dependency_names.split(',').map(&:strip)
         end
 
-        opts.on("--except GEMS", "Only update gems that are not included in this list.") do |gem_names|
-          Lapidarist.config.except += gem_names.split(',').map(&:strip)
+        opts.on("--except GEMS", "Only update dependencies that are not included in this list.") do |dependency_names|
+          Lapidarist.config.except += dependency_names.split(',').map(&:strip)
         end
       end
 

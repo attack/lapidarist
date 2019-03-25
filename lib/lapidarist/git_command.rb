@@ -49,7 +49,7 @@ module Lapidarist
     end
 
     def bisect_run(start_sha, test)
-      failing_gem_name = nil
+      failing_dependency_name = nil
 
       shell.run("git bisect run #{test}") do |std_out_err|
         while line = std_out_err.gets
@@ -57,8 +57,8 @@ module Lapidarist
 
           if bisect_step.failure?
             failing_sha = bisect_step.failing_sha
-            failing_gem_name = bisect_step.failing_gem(failing_sha)
-            Lapidarist.logger.info("... found failing gem update: #{failing_gem_name}")
+            failing_dependency_name = bisect_step.failing_dependency(failing_sha)
+            Lapidarist.logger.info("... found failing dependency update: #{failing_dependency_name}")
           end
 
           if bisect_step.success?
@@ -67,18 +67,18 @@ module Lapidarist
           end
         end
 
-        unless failing_gem_name
+        unless failing_dependency_name
           Lapidarist.logger.info("... last commit was failing commit")
         end
 
         Lapidarist.logger.footer("bisect done")
       end
 
-      if failing_gem_name && Lapidarist.config.debug
+      if failing_dependency_name && Lapidarist.config.debug
         log(start_sha)
       end
 
-      failing_gem_name
+      failing_dependency_name
     end
 
     def bisect_reset
@@ -111,7 +111,7 @@ module Lapidarist
       end
     end
 
-    def failing_gem(sha)
+    def failing_dependency(sha)
       commit_message = shell.run("git log --format=%s -n 1 #{sha}", label: 'git log')[0]
 
       sha_regex = Regexp::new('Update (.*) from').match(commit_message)

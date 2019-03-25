@@ -1,12 +1,12 @@
 module Lapidarist
   class Status
-    def initialize(gems, attempt)
-      @gems = gems
+    def initialize(dependencies, attempt)
+      @dependencies = dependencies
       @attempt = attempt
     end
 
     def to_i
-      if gems.updated.any? || attempt == 1
+      if dependencies.updated.any? || attempt == 1
         STATUS_SUCCESS
       else
         STATUS_FAILED
@@ -15,6 +15,6 @@ module Lapidarist
 
     private
 
-    attr_reader :gems, :attempt
+    attr_reader :dependencies, :attempt
   end
 end

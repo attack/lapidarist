@@ -19,7 +19,7 @@ module Lapidarist
       end
 
       sha.record_good
-      gems = Lapidarist::Outdated.new.run
+      dependencies = Lapidarist::Outdated.new.run
 
       status = nil
       attempt = 0
@@ -27,44 +27,44 @@ module Lapidarist
         attempt += 1
         Lapidarist.logger.header("Attempt ##{attempt}")
 
-        if gems.outdated.none?
-          Lapidarist.logger.footer('stopping, there are no applicable outdated gems')
-          status = Status.new(gems, attempt)
+        if dependencies.outdated.none?
+          Lapidarist.logger.footer('stopping, there are no applicable outdated dependencies')
+          status = Status.new(dependencies, attempt)
           break
         end
 
-        updated_gems = update.run(gems, attempt)
+        updated_dependencies = update.run(dependencies, attempt)
 
         if sha.new_commit_count.zero?
           Lapidarist.logger.footer('nothing updated, trying again')
-          gems = gems.merge(updated_gems)
+          dependencies = dependencies.merge(updated_dependencies)
           next
         end
 
-        Lapidarist.logger.header("Testing gem updates")
+        Lapidarist.logger.header("Testing dependency updates")
         if test.success?
           Lapidarist.logger.footer('test passed, nothing left to do')
-          gems = gems.merge(updated_gems)
-          status = Status.new(gems, attempt)
+          dependencies = dependencies.merge(updated_dependencies)
+          status = Status.new(dependencies, attempt)
           break
         else
           Lapidarist.logger.footer('test failed')
         end
 
-        failed_gem = Lapidarist::FindFailure.new(
-          gems: updated_gems,
+        failed_dependency = Lapidarist::FindFailure.new(
+          dependencies: updated_dependencies,
           attempt: attempt,
           last_good_sha: sha.last_good
         ).run
-        gems = gems.merge(updated_gems.take(sha.new_commit_count)).merge(failed_gem)
+        dependencies = dependencies.merge(updated_dependencies.take(sha.new_commit_count)).merge(failed_dependency)
         sha.record_good
 
         if Lapidarist.config.debug
-          Summary.new(gems).display_debug
+          Summary.new(dependencies).display_debug
         end
       end
 
-      Summary.new(gems).display
+      Summary.new(dependencies).display
       return status.to_i
 
     rescue OptionParser::InvalidOption => e
@@ -73,7 +73,7 @@ module Lapidarist
       return STATUS_ERROR
     rescue Lapidarist::Abort => e
       git.reset_hard(sha.last_good)
-      Summary.new(gems).display
+      Summary.new(dependencies).display
       return STATUS_ERROR
     end
 

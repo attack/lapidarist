@@ -1,7 +1,7 @@
 module Lapidarist
   class LevelConstraint
-    def initialize(gem)
-      @gem = gem
+    def initialize(dependency)
+      @dependency = dependency
     end
 
     def maximum
@@ -10,17 +10,17 @@ module Lapidarist
 
     private
 
-    attr_reader :gem
+    attr_reader :dependency
 
     def available_semver_levels
       available_semver_levels = [default_constraint]
-      available_semver_levels << gem.next_semver_level if Lapidarist.config.recursive
+      available_semver_levels << dependency.next_semver_level if Lapidarist.config.recursive
       available_semver_levels
     end
 
     def default_constraint
       if Lapidarist.config.groups.any?
-        Lapidarist.config.groups.select { |g| gem.groups.include?(g.name) }.min_by(&:level).level
+        Lapidarist.config.groups.select { |g| dependency.groups.include?(g.name) }.min_by(&:level).level
       else
         Lapidarist.config.version
       end

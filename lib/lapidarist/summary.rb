@@ -1,21 +1,21 @@
 module Lapidarist
   class Summary
-    def initialize(gems)
-      @gems = gems
+    def initialize(dependencies)
+      @dependencies = dependencies
     end
 
     def display
       Lapidarist.logger.summary ''
       Lapidarist.logger.summary 'Summary'
       Lapidarist.logger.summary '-'*50
-      Lapidarist.logger.summary "#{object_count(gems.updated, 'gem', 'gems')} updated, #{object_count(gems.failed, 'gem', 'gems')} failed and #{object_count(gems.skipped, 'gem', 'gems')} skipped in #{object_count(gems.attempts, 'attempt', 'attempts')}"
+      Lapidarist.logger.summary "#{object_count(dependencies.updated, 'dependency', 'dependencies')} updated, #{object_count(dependencies.failed, 'dependency', 'dependencies')} failed and #{object_count(dependencies.skipped, 'dependency', 'dependencies')} skipped in #{object_count(dependencies.attempts, 'attempt', 'attempts')}"
       summarize_attempts do |summary|
         Lapidarist.logger.summary summary
       end
     end
 
     def display_debug
-      Lapidarist.logger.debug "#{object_count(gems.updated, 'gem', 'gems')} updated, #{object_count(gems.failed, 'gem', 'gems')} failed and #{object_count(gems.skipped, 'gem', 'gems')} skipped in #{object_count(gems.attempts, 'attempt', 'attempts')}"
+      Lapidarist.logger.debug "#{object_count(dependencies.updated, 'dependency', 'dependencies')} updated, #{object_count(dependencies.failed, 'dependency', 'dependencies')} failed and #{object_count(dependencies.skipped, 'dependency', 'dependencies')} skipped in #{object_count(dependencies.attempts, 'attempt', 'attempts')}"
       summarize_attempts do |summary|
         Lapidarist.logger.debug summary
       end
@@ -23,7 +23,7 @@ module Lapidarist
 
     private
 
-    attr_reader :gems
+    attr_reader :dependencies
 
     def object_count(objects_or_length, singlular, plural)
       length =
@@ -41,16 +41,16 @@ module Lapidarist
     end
 
     def summarize_attempts
-      gems.each do |gem|
-        gem.attempts.each do |i, data|
+      dependencies.each do |dependency|
+        dependency.attempts.each do |i, data|
           summary =
             case data.status
             when :updated
-              " + updated #{gem.name} from #{gem.installed_version} to #{data.version}"
+              " + updated #{dependency.name} from #{dependency.installed_version} to #{data.version}"
             when :failed
-              " x failed #{gem.name} from #{gem.installed_version} to #{data.version}"
+              " x failed #{dependency.name} from #{dependency.installed_version} to #{data.version}"
             when :skipped
-              " - skipped #{gem.name} (#{data.reason})"
+              " - skipped #{dependency.name} (#{data.reason})"
             end
           yield summary
         end
