@@ -20,7 +20,7 @@ module Lapidarist
 
       Lapidarist.logger.debug(gems.map(&:name), :order)
 
-      Gems.new(gems)
+      Dependencies.new(gems)
     end
 
     private

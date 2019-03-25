@@ -74,7 +74,7 @@ module Lapidarist
     end
 
     def stub_outdated_gems(*value)
-      gems = double(Lapidarist::Gems).as_null_object
+      gems = double(Lapidarist::Dependencies).as_null_object
       allow(gems).to receive(:outdated).and_return(*value)
       outdated = double(Lapidarist::Outdated)
       allow(outdated).to receive(:run).and_return(gems)
