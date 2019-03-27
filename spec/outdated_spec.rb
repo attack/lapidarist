@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# TODO: add tests for using Go
 RSpec.describe Lapidarist::Outdated do
   describe '#run' do
     it 'returns an outdated gem for each gem' do
@@ -9,7 +10,7 @@ RSpec.describe Lapidarist::Outdated do
       gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0', groups: ['default'])
       allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-      gems = Lapidarist::Outdated.new.run
+      gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
       expect(gems.count).to eq 2
       expect(gems.to_a).to eq([
@@ -25,7 +26,7 @@ RSpec.describe Lapidarist::Outdated do
       gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0')
       allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-      gems = Lapidarist::Outdated.new.run
+      gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
       expect(gems.count).to eq 2
       expect(gems.to_a).to eq([
@@ -42,7 +43,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 2
         expect(gems.to_a).to eq([
@@ -60,7 +61,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_2 = Lapidarist::Gem.new(name: 'rake', newest_version: '12.3.1', installed_version: '10.5.0', groups: ['test', 'default'])
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 2
         expect(gems.to_a).to eq([
@@ -75,7 +76,7 @@ RSpec.describe Lapidarist::Outdated do
         gem = Lapidarist::Gem.new(name: 'rack', newest_version: '2.0.5', installed_version: '2.0.3', groups: ['default'])
         allow(bundle).to receive(:outdated) { [gem] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 1
         expect(gems.to_a).to eq([Lapidarist::Gem.from(gem, status: :skipped, reason: :unmatched_group)])
@@ -92,14 +93,14 @@ RSpec.describe Lapidarist::Outdated do
         gem_4 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
 
-        gems_1 = Lapidarist::Outdated.new.run
-        gems_2 = Lapidarist::Outdated.new.run
-        gems_3 = Lapidarist::Outdated.new.run
-        gems_4 = Lapidarist::Outdated.new.run
-        gems_5 = Lapidarist::Outdated.new.run
-        gems_6 = Lapidarist::Outdated.new.run
-        gems_7 = Lapidarist::Outdated.new.run
-        gems_8 = Lapidarist::Outdated.new.run
+        gems_1 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_2 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_3 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_4 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_5 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_6 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_7 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_8 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         first_gem_to_be_updated = [gems_1.first, gems_2.first, gems_3.first, gems_4.first, gems_5.first, gems_6.first, gems_7.first, gems_8.first].map(&:name).uniq
         expect(first_gem_to_be_updated.count).not_to eq 1
@@ -112,10 +113,10 @@ RSpec.describe Lapidarist::Outdated do
         allow(bundle).to receive(:outdated) { [gem_1, gem_2] }
 
         stub_options(random: true, seed: 1)
-        gems_1 = Lapidarist::Outdated.new.run
+        gems_1 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         stub_options(random: true, seed: 2)
-        gems_2 = Lapidarist::Outdated.new.run
+        gems_2 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems_1.map(&:name)).not_to eq gems_2.map(&:name)
       end
@@ -131,7 +132,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_4 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 4
         expect(gems.map(&:name)).to eq %w(rack bcrypt addressable rake)
@@ -146,7 +147,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_4 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 4
         expect(gems.map(&:name)).to eq %w(addressable rake bcrypt rack)
@@ -162,7 +163,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_5 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4, gem_5] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 5
         expect(gems.map(&:name)).to eq %w(bcrypt capybara rake addressable rack)
@@ -179,11 +180,11 @@ RSpec.describe Lapidarist::Outdated do
         gem_6 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4, gem_5, gem_6] }
 
-        gems_1 = Lapidarist::Outdated.new.run
-        gems_2 = Lapidarist::Outdated.new.run
-        gems_3 = Lapidarist::Outdated.new.run
-        gems_4 = Lapidarist::Outdated.new.run
-        gems_5 = Lapidarist::Outdated.new.run
+        gems_1 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_2 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_3 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_4 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
+        gems_5 = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         first_of_promoted_gems = [gems_1.to_a[0], gems_2.to_a[0], gems_3.to_a[0], gems_4.to_a[0], gems_5.to_a[0]].map(&:name).uniq
         expect(first_of_promoted_gems).to eq %w(bcrypt)
@@ -206,7 +207,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_4 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 2
         expect(gems.map(&:name)).to eq %w(bcrypt rack)
@@ -221,7 +222,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_4 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 2
         expect(gems.map(&:name)).to eq %w(addressable rake)
@@ -236,7 +237,7 @@ RSpec.describe Lapidarist::Outdated do
         gem_4 = build_gem(name: 'rake')
         allow(bundle).to receive(:outdated) { [gem_1, gem_2, gem_3, gem_4] }
 
-        gems = Lapidarist::Outdated.new.run
+        gems = Lapidarist::Outdated.new(Lapidarist::BundleCommand, Lapidarist::Gem).run
 
         expect(gems.count).to eq 1
         expect(gems.map(&:name)).to eq %w(rack)

@@ -4,7 +4,6 @@ module Lapidarist
       @args = args
       @git = GitCommand.new
       @test = TestCommand.new
-      @update = Update.new
       @sha = Sha.new
     end
 
@@ -13,13 +12,23 @@ module Lapidarist
       Lapidarist.logger.header('Starting lapidarist')
       trap_interrupt
 
+      case Lapidarist.config.project
+      when :go_mod
+        command_class = Lapidarist::GoCommand
+        dependency_class = Lapidarist::Mod
+      else
+        command_class = Lapidarist::BundleCommand
+        dependency_class = Lapidarist::Gem
+      end
+      @update = Lapidarist::Update.new(command_class, dependency_class)
+
       unless git.clean?
         Lapidarist.logger.footer('stopping, there are uncommitted changes')
         return STATUS_ERROR
       end
 
       sha.record_good
-      dependencies = Lapidarist::Outdated.new.run
+      dependencies = Lapidarist::Outdated.new(command_class, dependency_class).run
 
       status = nil
       attempt = 0
@@ -52,6 +61,7 @@ module Lapidarist
         end
 
         failed_dependency = Lapidarist::FindFailure.new(
+          dependency_class,
           dependencies: updated_dependencies,
           attempt: attempt,
           last_good_sha: sha.last_good

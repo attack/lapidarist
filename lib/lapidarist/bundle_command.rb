@@ -28,6 +28,10 @@ module Lapidarist
       Lapidarist::GemVersion.new(version: result[:version], sha: result[:sha]&.strip) if result
     end
 
+    def files
+      ['Gemfile', 'Gemfile.lock']
+    end
+
     private
 
     attr_reader :shell

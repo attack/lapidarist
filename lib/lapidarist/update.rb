@@ -1,55 +1,56 @@
 module Lapidarist
   class Update
-    def initialize
-      @bundle = BundleCommand.new
+    def initialize(command_class, dependency_class)
+      @command = command_class.new
+      @dependency_class = dependency_class
       @git = GitCommand.new
     end
 
-    def run(gems, attempt)
+    def run(dependencies, attempt)
       before_sha = git.head if Lapidarist.config.debug
 
-      Lapidarist.logger.header('Updating outdated gems')
+      Lapidarist.logger.header('Updating outdated dependencies')
 
       limit =
         if Lapidarist.config.update_limit
-          [Lapidarist.config.update_limit - gems.updated.length, 0].max
+          [Lapidarist.config.update_limit - dependencies.updated.length, 0].max
         else
-          gems.outdated.length
+          dependencies.outdated.length
         end
 
-      updated_gems = gems.outdated.take(limit).map do |outdated_gem|
-        update_gem(outdated_gem, attempt)
+      updated_dependencies = dependencies.outdated.take(limit).map do |outdated_dependency|
+        update_dependency(outdated_dependency, attempt)
       end
 
       git.log(before_sha) if Lapidarist.config.debug
 
-      updated_gems
+      updated_dependencies
     end
 
     private
 
-    attr_reader :outdated_gems, :bundle, :git
+    attr_reader :outdated_dependencies, :command, :git, :dependency_class
 
-    def update_gem(outdated_gem, attempt)
-      Lapidarist.logger.smart_header "Updating #{outdated_gem.name} from #{outdated_gem.installed_version}"
+    def update_dependency(outdated_dependency, attempt)
+      Lapidarist.logger.smart_header "Updating #{outdated_dependency.name} from #{outdated_dependency.installed_version}"
 
-      level_constraint = Lapidarist::LevelConstraint.new(outdated_gem)
-      bundle.update(outdated_gem, level: level_constraint.maximum)
-      updated_version = bundle.version(outdated_gem)
+      level_constraint = Lapidarist::LevelConstraint.new(outdated_dependency)
+      command.update(outdated_dependency, level: level_constraint.maximum)
+      updated_version = command.version(outdated_dependency)
 
       if git.clean?
-        skipped_gem = Gem.from(outdated_gem, attempt: attempt, status: :skipped, reason: :nothing_to_update)
-        Lapidarist.logger.footer "nothing to update for #{skipped_gem.name}"
+        skipped_dependency = dependency_class.from(outdated_dependency, attempt: attempt, status: :skipped, reason: :nothing_to_update)
+        Lapidarist.logger.footer "nothing to update for #{skipped_dependency.name}"
 
-        skipped_gem
+        skipped_dependency
       else
-        updated_gem = Gem.from(outdated_gem, attempt: attempt, status: :updated, updated_version: updated_version)
-        Lapidarist.logger.footer "updated #{updated_gem.name} to #{updated_gem.updated_version}"
+        updated_dependency = dependency_class.from(outdated_dependency, attempt: attempt, status: :updated, updated_version: updated_version)
+        Lapidarist.logger.footer "updated #{updated_dependency.name} to #{updated_dependency.updated_version}"
 
-        git.add('Gemfile', 'Gemfile.lock')
-        git.commit("Update #{updated_gem.what_changed}")
+        git.add(*command.files)
+        git.commit("Update #{updated_dependency.what_changed}")
 
-        updated_gem
+        updated_dependency
       end
     end
   end

@@ -1,11 +1,12 @@
 module Lapidarist
   module Stubs
     def stub_shell(value = nil, &block)
-      shell = double(Lapidarist::Shell, run: value)
+      shell = double(Lapidarist::Shell, run: value, run_out_only: value)
       allow(Lapidarist::Shell).to receive(:new) { shell }
 
       if value.nil? && block_given?
-        expect(shell).to receive(:run).and_yield(block.call)
+        allow(shell).to receive(:run).and_yield(block.call)
+        allow(shell).to receive(:run_out_only).and_yield(block.call)
       end
 
       shell
@@ -46,6 +47,14 @@ module Lapidarist
       Lapidarist::Gem.new(
         name: name || 'foo gem',
         newest_version: nil,
+        installed_version: nil
+      )
+    end
+
+    def stub_module(name: '', newest_version: nil)
+      Lapidarist::Mod.new(
+        name: name || 'foo gem',
+        newest_version: newest_version || 'v0.0.2',
         installed_version: nil
       )
     end

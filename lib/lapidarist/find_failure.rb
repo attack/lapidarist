@@ -1,6 +1,7 @@
 module Lapidarist
   class FindFailure
-    def initialize(dependencies:, attempt:, last_good_sha:)
+    def initialize(dependency_class, dependencies:, attempt:, last_good_sha:)
+      @dependency_class = dependency_class
       @dependencies = dependencies
       @attempt = attempt
       @last_good_sha = last_good_sha
@@ -20,7 +21,7 @@ module Lapidarist
           dependencies.detect { |dependency| dependency.name == failed_dependency_name }
         end
 
-      Gem.from(
+      dependency_class.from(
         updated_but_failed_dependency,
         attempt: attempt,
         status: :failed,
@@ -30,6 +31,6 @@ module Lapidarist
 
     private
 
-    attr_reader :dependencies, :attempt, :last_good_sha, :git, :test
+    attr_reader :dependency_class, :dependencies, :attempt, :last_good_sha, :git, :test
   end
 end

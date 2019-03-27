@@ -22,7 +22,8 @@ module Lapidarist
         promoted: [],
         demoted: [],
         only: [],
-        except: []
+        except: [],
+        project: :ruby_bundler,
       )
     end
   end
