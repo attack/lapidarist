@@ -48,6 +48,7 @@ module Lapidarist
     end
 
     def summary(message)
+      write_summary_file(message)
       write_std_out(message, 0)
       write_log_file(message)
     end
@@ -74,6 +75,12 @@ module Lapidarist
     def write_log_file(message)
       if Lapidarist.config.log_path && !Lapidarist.config.log_path.empty?
         Open3.capture2("echo \"#{message}\" >> #{Lapidarist.config.log_path}", chdir: Lapidarist.config.directory)
+      end
+    end
+
+    def write_summary_file(message)
+      if Lapidarist.config.log_path && !Lapidarist.config.log_path.empty?
+        Open3.capture2("echo \"#{message}\" >> #{Lapidarist.config.log_path}.summary", chdir: Lapidarist.config.directory)
       end
     end
   end
