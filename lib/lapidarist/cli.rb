@@ -27,6 +27,11 @@ module Lapidarist
         return STATUS_ERROR
       end
 
+      unless test.success?
+        Lapidarist.logger.footer('stopping, the test does not currently pass')
+        return STATUS_ERROR
+      end
+
       sha.record_good
       dependencies = Lapidarist::Outdated.new(command_class, dependency_class).run
 
