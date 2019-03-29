@@ -9,7 +9,7 @@ module Lapidarist
     def outdated
       Enumerator.new do |y|
         json_line = []
-        shell.run_out_only('go list -u -m -json all') do |std_out|
+        shell.run_out_only('go list -mod=vendor -u -m -json all') do |std_out|
           while line = std_out.gets
             Lapidarist.logger.std_out_err(line, 'go list')
             json_line << line
@@ -35,7 +35,7 @@ module Lapidarist
     end
 
     def version(mod)
-      json, status = shell.run_out_only("go list -u -m -json #{mod.name}")
+      json, status = shell.run_out_only("go list -mod=vendor -u -m -json #{mod.name}")
       parsed_json = JSON.load(json)
       Lapidarist::ModuleVersion.new(version: parsed_json["Version"]) if parsed_json
     end
