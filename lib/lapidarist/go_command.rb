@@ -30,8 +30,12 @@ module Lapidarist
 
     def update(mod, level: MAJOR)
       go_version = Lapidarist::GoVersion.new(installed: mod.installed_version)
-      shell.run("go get -u #{mod.name}@#{go_version.constraint(level)}")
+      # shell.run("go get -u #{mod.name}@#{go_version.constraint(level)}")
+      # shell.run("go mod tidy")
+
+      shell.run("go get #{mod.name}@#{go_version.constraint(level)}")
       shell.run("go mod tidy")
+      shell.run("go mod vendor")
     end
 
     def version(mod)
@@ -41,7 +45,7 @@ module Lapidarist
     end
 
     def files
-      ['go.mod', 'go.sum']
+      ['go.mod', 'go.sum', 'vendor']
     end
 
     private
