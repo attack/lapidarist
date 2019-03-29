@@ -51,7 +51,7 @@ module Lapidarist
     def bisect_run(start_sha, test)
       failing_dependency_name = nil
 
-      shell.run("git bisect run #{test}") do |std_out_err|
+      shell.run("git bisect run '#{test}'") do |std_out_err|
         while line = std_out_err.gets
           bisect_step = BisectStep.new(line, shell)
 
