@@ -42,7 +42,7 @@ module Lapidarist
         end
 
         opts.on("-l LOG_PATH", "Path to log file") do |t|
-          Lapidarist.config.log_path = t
+          Lapidarist.config.log_path = Pathname.new(t)
         end
 
         opts.on("-n NUMBER_OF_DEPENDENCIES", "Limit the number of dependencies to be updated.") do |t|
