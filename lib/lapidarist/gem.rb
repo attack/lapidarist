@@ -1,25 +1,4 @@
 module Lapidarist
-  class NullAttempt
-    def status; nil; end
-    def reason; nil; end
-    def version; nil; end
-    def updated?; false; end
-  end
-
-  class Attempt
-    attr_reader :status, :reason, :version
-
-    def initialize(status:, reason:, version:)
-      @status = status
-      @reason = reason
-      @version = version
-    end
-
-    def updated?
-      status == :updated
-    end
-  end
-
   class Gem
     attr_reader :name, :position, :newest_version, :installed_version, :attempts
 

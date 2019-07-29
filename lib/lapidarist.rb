@@ -12,6 +12,8 @@ require_relative 'lapidarist/gem_version'
 require_relative 'lapidarist/module_version'
 require_relative 'lapidarist/go_version'
 require_relative 'lapidarist/dependencies'
+require_relative 'lapidarist/null_attempt'
+require_relative 'lapidarist/attempt'
 require_relative 'lapidarist/gem'
 require_relative 'lapidarist/mod'
 
