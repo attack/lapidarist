@@ -13,6 +13,8 @@ module Lapidarist
     end
 
     def ==(other_attempt)
+      return false unless other_attempt
+
       version == other_attempt.version
     end
   end
