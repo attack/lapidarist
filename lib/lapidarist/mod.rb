@@ -74,6 +74,11 @@ module Lapidarist
       updated_attempt&.version
     end
 
+    def repeated_update?
+      latest_attempt_number > 1 &&
+        latest_attempt == attempts[latest_attempt_number - 1]
+    end
+
     def what_changed
       if version_changed?
         "#{name} from #{clean_installed_version} to #{clean_updated_version}"
@@ -83,7 +88,9 @@ module Lapidarist
     end
 
     def available_update_levels?
-      failed? && !version_change.next_level.nil?
+      failed? &&
+        !version_change.next_level.nil? &&
+        !repeated_update?
     end
 
     def next_semver_level
